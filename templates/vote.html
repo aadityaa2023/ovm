@@ -1,0 +1,266 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ election.title }} | Cast Vote</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0d47a1;
+            --bg: #f0f2f5;
+            --card-bg: #ffffff;
+            --accent: #e3f2fd;
+            --text-main: #1a1a1a;
+            --text-dim: #5f6368;
+            --danger: #d32f2f;
+            --success: #2e7d32;
+            --border: #dadce0;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: "Segoe UI", Roboto, sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            margin: 0 0 10px;
+        }
+
+        .header p {
+            color: var(--text-dim);
+        }
+
+        .candidate-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .candidate-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .candidate-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .party-symbol {
+            height: 180px;
+            width: 100%;
+            object-fit: contain;
+            padding: 20px;
+            background: var(--accent);
+        }
+
+        .card-body {
+            padding: 25px;
+            text-align: center;
+        }
+
+        .card-body h2 {
+            margin: 0 0 5px;
+            font-size: 22px;
+        }
+
+        .card-body p {
+            color: var(--text-dim);
+            margin: 0 0 20px;
+            font-weight: 500;
+        }
+
+        .vote-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary);
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .vote-btn:hover {
+            background: #002171;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+        }
+
+        .receipt-box {
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .success-icon {
+            font-size: 60px;
+            color: var(--success);
+            margin-bottom: 20px;
+        }
+
+        .home-btn {
+            background: var(--success);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>{{ election.title }}</h1>
+            <p>Select your representative for <strong>{{ voter.constituency.name }}</strong></p>
+        </div>
+
+        <div class="candidate-grid">
+            {% for candidate in candidates %}
+            <div class="candidate-card">
+                {% if candidate.party_symbol %}
+                <img src="{{ candidate.party_symbol.url }}" class="party-symbol" alt="Symbol">
+                {% else %}
+                <div class="party-symbol"
+                    style="display:flex;align-items:center;justify-content:center;font-size:50px;color:rgba(0,0,0,0.2);">
+                    <i class="fa-solid fa-user-tie"></i>
+                </div>
+                {% endif %}
+
+                <div class="card-body">
+                    <h2>{{ candidate.name }}</h2>
+                    <p>{{ candidate.party_name }}</p>
+                    <button class="vote-btn"
+                        onclick="confirmVote('{{ candidate.id }}', '{{ candidate.name|escapejs }}')">
+                        <i class="fa-solid fa-check-to-slot"></i> VOTE
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div id="receiptModal" class="modal">
+        <div class="modal-content">
+            <i class="fa-solid fa-circle-check success-icon"></i>
+            <h2>Vote Recorded Successfully!</h2>
+            <p>Your vote has been securely stored on the blockchain.</p>
+
+            <div class="receipt-box">
+                <strong>Blockchain Hash:</strong><br>
+                <span id="txHash">...</span>
+            </div>
+
+            <div id="qrcode" style="display:flex; justify-content:center; margin-bottom:20px;"></div>
+
+            <p style="font-size:12px; color:#666;">Do not close before saving your receipt.</p>
+            <a href="{% url 'dashboard' %}" class="home-btn">Return to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        async function confirmVote(candidateId, candidateName) {
+            if (!confirm(`Are you sure you want to cast your vote for ${candidateName}? This action cannot be undone.`)) return;
+
+            // Call API
+            try {
+                const response = await fetch('/api/cast-vote/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        election_id: "{{ election.id }}",
+                        candidate_id: candidateId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showReceipt(data);
+                } else {
+                    alert("Voting Failed: " + data.message);
+                }
+            } catch (e) {
+                alert("System Error: " + e);
+            }
+        }
+
+        function showReceipt(data) {
+            document.getElementById('receiptModal').style.display = 'flex';
+            document.getElementById('txHash').innerText = data.blockchain_hash;
+
+            // Generate QR
+            new QRCode(document.getElementById("qrcode"), {
+                text: data.receipt_hash,
+                width: 128,
+                height: 128
+            });
+        }
+    </script>
+
+</body>
+
+</html>

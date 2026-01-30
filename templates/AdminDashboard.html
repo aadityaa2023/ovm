@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matdaan Admin | Master Ledger Control</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        :root {
+            /* Updated Light Theme Colors */
+            --bg-main: #f8fafc;
+            --sidebar-bg: #ffffff;
+            --sidebar-text: #64748b;
+            --active-blue: #0ea5e9;
+            --active-bg: rgba(14, 165, 233, 0.1);
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --accent-blue: #0ea5e9;
+            --accent-green: #22c55e;
+            --sidebar-width: 260px;
+            --gold: #c5a059;
+        }
+
+        * { box-sizing: border-box; transition: all 0.2s ease; font-family: 'Inter', 'Segoe UI', sans-serif; }
+        body { margin: 0; background: var(--bg-main); color: var(--text-main); overflow: hidden; }
+        .container { display: flex; height: 100vh; }
+
+        /* Sidebar Styling */
+        .sidebar { width: var(--sidebar-width); background: var(--sidebar-bg); display: flex; flex-direction: column; border-right: 1px solid var(--border-color); }
+        
+        /* National Emblem Addition */
+        .gov-branding { padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); }
+        .emblem-logo { width: 50px; margin-bottom: 10px; }
+        .gov-branding h2 { font-size: 22px; color: var(--active-blue); font-weight: 800; letter-spacing: 1px; margin: 0; }
+        
+        .nav-links { list-style: none; padding: 15px; flex-grow: 1; margin: 0; }
+        .nav-links li { padding: 12px 16px; margin-bottom: 6px; border-radius: 8px; cursor: pointer; color: var(--sidebar-text); display: flex; align-items: center; font-size: 15px; font-weight: 500; position: relative; }
+        .nav-links li i { width: 28px; font-size: 18px; margin-right: 12px; }
+        .nav-links li.active { background: var(--active-bg); color: var(--active-blue); }
+        .nav-links li.active::after { content: ''; position: absolute; right: 12px; width: 6px; height: 6px; background: var(--active-blue); border-radius: 50%; }
+        .nav-links li:hover:not(.active) { background: #f1f5f9; color: var(--text-main); }
+
+        /* Main Area */
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: #ffffff; border-bottom: 1px solid var(--border-color); }
+        .view-container { flex-grow: 1; padding: 25px; overflow-y: auto; }
+        .view { display: none; }
+        .view.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Election Card Styling (Light Mode) */
+        .election-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; }
+        .election-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color); padding: 24px; position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .level-symbol { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 24px; background: #f1f5f9; border-radius: 10px; }
+        .election-info-text { flex: 1; margin-left: 15px; }
+        .election-info-text h4 { margin: 0; font-size: 18px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .election-info-text p { margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted); }
+
+        .status-badge { font-size: 12px; padding: 4px 12px; border-radius: 20px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .status-badge.active { background: #dcfce7; color: #166534; }
+        .status-badge.scheduled { background: #fef9c3; color: #854d0e; }
+        .status-badge.ended { background: #f1f5f9; color: #475569; }
+
+        .three-dots { color: var(--text-muted); cursor: pointer; padding: 5px; position: relative; }
+        .slide-panel { 
+            position: absolute; right: 0; top: 35px; background: #ffffff; 
+            border: 1px solid var(--border-color); border-radius: 12px; width: 160px; 
+            z-index: 100; display: none; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .slide-panel.show { display: block; animation: slideDown 0.2s ease; }
+        @keyframes slideDown { from { opacity:0; transform: translateY(-10px); } to { opacity:1; transform: translateY(0); } }
+        .panel-item { padding: 12px 16px; font-size: 13px; color: var(--text-main); display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .panel-item:hover { background: #f1f5f9; }
+        .panel-item.delete { color: #ef4444; border-top: 1px solid var(--border-color); }
+
+        .card-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .stat-box { background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .stat-box span { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+        .stat-box strong { font-size: 14px; color: var(--text-main); }
+        .stat-box .turnout-val { color: var(--accent-blue); }
+
+        .card-meta { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--border-color); padding-top: 15px; }
+        .meta-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
+        .hash-id { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #166534; font-family: monospace; }
+
+        /* Modal / Form Styles (Light Mode) */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .modal-content { background: #ffffff; width: 90%; max-width: 850px; border-radius: 20px; border: 1px solid var(--border-color); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1); max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
+        .modal-header { padding: 20px 30px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
+        .modal-body { padding: 30px; overflow-y: auto; color: var(--text-main); }
+        .modal-footer { padding: 20px 30px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; justify-content: flex-end; background: #f8fafc; }
+        
+        .section-title { font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--active-blue); border-left: 4px solid var(--active-blue); padding-left: 12px; margin: 25px 0 15px 0; font-weight: 700; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .form-group { margin-bottom: 18px; }
+        label { font-size: 13px; font-weight: 600; margin-bottom: 8px; display: block; color: var(--text-main); }
+        input, select, textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 10px; font-size: 14px; background: #ffffff; color: var(--text-main); }
+        
+        .bulk-area { border: 2px dashed #cbd5e1; padding: 25px; text-align: center; background: #f1f5f9; border-radius: 12px; margin-bottom: 20px; }
+        .candidate-entry-row { border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; margin-bottom: 20px; background: #f8fafc; }
+
+        .btn-create { background: var(--active-blue); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 25px; }
+        .stat-card { background: #ffffff; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <nav class="sidebar">
+        <div class="gov-branding">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Emblem_of_India.svg/800px-Emblem_of_India.svg.png" alt="India Emblem" class="emblem-logo">
+            <h2>MATDAAN</h2>
+        </div>
+        <ul class="nav-links">
+            <li class="active" data-target="dash"><i class="fa-solid fa-house"></i> Dashboard</li>
+            <li data-target="create-elec"><i class="fa-solid fa-square-check"></i> Elections</li>
+            <li data-target="voters-view"><i class="fa-solid fa-users"></i> Voters</li>
+            <li data-target="monitor"><i class="fa-solid fa-cube"></i> Blockchain</li>
+            <li data-target="results"><i class="fa-solid fa-chart-line"></i> Analytics</li>
+            <li data-target="verification"><i class="fa-solid fa-shield"></i> Security</li>
+            <li data-target="settings"><i class="fa-solid fa-gear"></i> Settings</li>
+        </ul>
+        <div style="padding: 20px;"><button class="btn-create" style="width:100%; background: #ef4444;" onclick="location.reload()">Logout</button></div>
+    </nav>
+
+    <main class="main-content">
+        <header>
+            <h3 id="view-title">Dashboard Overview</h3>
+            <button class="btn-create" onclick="openModal()"><i class="fa-solid fa-plus"></i> Create Election</button>
+        </header>
+
+        <div class="view-container">
+            <div id="dash" class="view active">
+                <div class="stats-grid">
+                    <div class="stat-card"><h4>Total Elections</h4><strong id="total-elec">0</strong></div>
+                    <div class="stat-card"><h4>Active Elections</h4><strong id="active-elec">0</strong></div>
+                    <div class="stat-card"><h4>Registered Voters</h4><strong id="reg-voters">67.3M</strong></div>
+                    <div class="stat-card"><h4>Blockchain Blocks</h4><strong id="block-count">1,847,293</strong></div>
+                </div>
+                <div class="election-grid" id="main-election-list"></div>
+            </div>
+
+            <div id="create-elec" class="view">
+                <div class="election-grid" id="management-election-list"></div>
+            </div>
+
+            <div id="details-view" class="view">
+                <div class="stat-card">
+                    <button class="btn-create" onclick="switchTab('dash')" style="margin-bottom: 20px; background: #64748b;"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                    <div id="details-content"></div>
+                </div>
+            </div>
+
+            <div id="voters-view" class="view"><div class="stat-card"><h3>Voter Registry</h3></div></div>
+            <div id="monitor" class="view"><div class="stat-card"><h3>Blockchain Explorer</h3></div></div>
+            <div id="results" class="view"><div class="stat-card"><h3>Analytics Report</h3></div></div>
+            <div id="verification" class="view"><div class="stat-card"><h3>Security Queue</h3></div></div>
+            <div id="settings" class="view"><div class="stat-card"><h3>System Configuration</h3></div></div>
+        </div>
+    </main>
+</div>
+
+<div class="modal" id="electionModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modal-title">Create New Election</h3>
+            <button onclick="closeModal()" style="background:none; border:none; cursor:pointer; font-size:20px; color:var(--text-muted);"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <div class="modal-body">
+            <input type="hidden" id="edit-key">
+            
+            <div class="section-title">1. New Election Configuration</div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Election Title <span>*</span></label>
+                    <input type="text" id="el-title" placeholder="Ex: Lok Sabha 2026">
+                </div>
+                <div class="form-group">
+                    <label>Election Logo <span>*</span></label>
+                    <input type="file" id="el-logo" accept="image/*">
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Authorization Criteria <span>*</span></label>
+                    <select id="el-auth-type">
+                        <option value="University Roll">University Roll Number</option>
+                        <option value="Aadhar">Aadhar Card</option>
+                        <option value="Voter ID">Voter ID</option>
+                        <option value="Admission No">Admission Number</option>
+                        <option value="Faculty ID">Faculty ID</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Election Start/End <span>*</span></label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="datetime-local" id="el-start">
+                        <input type="datetime-local" id="el-end">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Election Type <span>*</span></label>
+                <select id="el-type">
+                    <option value="University/College">University/College</option>
+                    <option value="National">National</option>
+                    <option value="Organization/Society">Organization/Society</option>
+                    <option value="State/Regional">State/Regional</option>
+                </select>
+            </div>
+
+            <div class="section-title">2. Bulk Voter Import <span>*</span></div>
+            <div class="bulk-area">
+                <i class="fa-solid fa-file-excel"></i>
+                <p style="margin: 0 0 15px 0; font-weight: 500; font-size: 14px; color: var(--text-muted);">Paste Roll Numbers / IDs from Excel (one per line)</p>
+                <textarea id="bulk-voter-input" rows="3" placeholder="21IOT001&#10;21IOT002"></textarea>
+            </div>
+
+            <div class="section-title">3. Candidate Nomination Details</div>
+            <div id="candidates-container">
+                <div class="candidate-entry-row">
+                    <div class="candidate-header"><strong>Nominee #1</strong></div>
+                    <div class="grid-2">
+                        <div>
+                            <div class="form-group"><label>Full Name <span>*</span></label><input type="text" class="cand-name"></div>
+                            <div class="form-group"><label>Date of Birth <span>*</span></label><input type="date" class="cand-dob"></div>
+                            <div class="form-group"><label>Aadhar ID <span>*</span></label><input type="text" class="cand-aadhar"></div>
+                            <div class="form-group"><label>Party / Symbol Name <span>*</span></label><input type="text" class="cand-party"></div>
+                        </div>
+                        <div>
+                            <div class="form-group"><label>Manifesto <span>*</span></label><textarea class="cand-manifesto" rows="4"></textarea></div>
+                            <div class="form-group">
+                                <label>Criminal Declaration <span>*</span></label>
+                                <select class="cand-criminal"><option value="No">No Pending Cases</option><option value="Yes">Has Pending Cases</option></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Security Deposit <span>*</span></label>
+                                <div style="display:flex; align-items:center; gap:8px; padding: 10px; border: 1px solid var(--border-color); border-radius: 10px; background: #ffffff;">
+                                    <input type="checkbox" class="cand-deposit" style="width:auto; margin:0;"> 
+                                    <span style="font-size: 13px;">Confirm ₹25,000 Payment</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-create" style="background:var(--accent-blue); width: 100%; justify-content: center; margin-bottom: 20px;" onclick="addAnotherCandidate()">
+                <i class="fa-solid fa-plus"></i> Add Another Candidate
+            </button>
+
+            <div style="padding: 15px; background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.2); border-radius: 12px; font-size: 13px; color: #854d0e; display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="code-conduct" style="width:auto; margin:0;"> 
+                <span>I agree to the Model Code of Conduct.</span>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-create" style="background:transparent; border: 1px solid var(--border-color); color: var(--text-main);" onclick="closeModal()">Cancel</button>
+            <button class="btn-create" id="save-btn" onclick="saveElection()">Deploy to Ledger</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const db = firebase.database();
+
+    // Fix: Toggle Edit vs Create in Modal
+    function openModal(isEdit = false, key = null, data = null) {
+        const modal = document.getElementById('electionModal');
+        const title = document.getElementById('modal-title');
+        const saveBtn = document.getElementById('save-btn');
+        const editKey = document.getElementById('edit-key');
+        
+        if (isEdit) {
+            title.innerText = "Edit Election";
+            saveBtn.innerText = "Update Ledger";
+            editKey.value = key;
+            // Pre-fill form
+            document.getElementById('el-title').value = data.title;
+            document.getElementById('el-type').value = data.type;
+            document.getElementById('el-start').value = data.start_date;
+            document.getElementById('el-end').value = data.end_date;
+        } else {
+            title.innerText = "Create New Election";
+            saveBtn.innerText = "Deploy to Ledger";
+            editKey.value = "";
+            document.getElementById('el-title').value = "";
+            document.getElementById('el-start').value = "";
+            document.getElementById('el-end').value = "";
+        }
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() { document.getElementById('electionModal').style.display = 'none'; }
+
+    // Fix: View Details Implementation
+    function viewDetails(key, data) {
+        switchTab('details-view');
+        document.getElementById('details-content').innerHTML = `
+            <h2>${data.title}</h2>
+            <hr><br>
+            <p><strong>Type:</strong> ${data.type}</p>
+            <p><strong>Schedule:</strong> ${formatDate(data.start_date)} - ${formatDate(data.end_date)}</p>
+            <p><strong>Current Status:</strong> ${data.status}</p>
+            <p><strong>Votes Recorded:</strong> ${data.votes.toLocaleString()}</p>
+            <p><strong>Blockchain ID:</strong> ${data.last_hash}</p>
+            <div style="margin-top: 20px;">
+                <p><em>Security integrity verified. All blocks encrypted.</em></p>
+            </div>
+        `;
+    }
+
+    function addAnotherCandidate() {
+        const container = document.getElementById('candidates-container');
+        const num = container.children.length + 1;
+        const div = document.createElement('div');
+        div.className = 'candidate-entry-row';
+        div.innerHTML = `<div class="candidate-header"><strong>Nominee #${num}</strong></div><div class="grid-2"><div><label>Full Name</label><input type="text" class="cand-name"></div><div><label>Party</label><input type="text" class="cand-party"></div></div>`;
+        container.appendChild(div);
+    }
+
+    function toggleDropdown(e, key) {
+        e.stopPropagation();
+        const allPanels = document.querySelectorAll('.slide-panel');
+        allPanels.forEach(p => {
+            if (p.id !== 'panel-' + key) p.classList.remove('show');
+        });
+        document.getElementById('panel-' + key).classList.toggle('show');
+    }
+
+    window.addEventListener('click', () => {
+        document.querySelectorAll('.slide-panel').forEach(p => p.classList.remove('show'));
+    });
+
+    // Fix: Save vs Update Logic
+    function saveElection() {
+        if(!document.getElementById('code-conduct').checked) return alert("Agree to Code of Conduct");
+        const title = document.getElementById('el-title').value;
+        const start = document.getElementById('el-start').value;
+        const end = document.getElementById('el-end').value;
+        const type = document.getElementById('el-type').value;
+        const key = document.getElementById('edit-key').value;
+
+        if(!title || !start || !end) return alert("Please fill mandatory fields");
+
+        const data = {
+            title, type, start_date: start, end_date: end,
+            status: 'Active', votes: 0, total_voters: 12500,
+            last_hash: key ? 'Updating...' : '0x' + Math.random().toString(16).slice(2, 7) + '...'
+        };
+
+        if(key) {
+            db.ref('elections/' + key).update(data).then(() => { closeModal(); alert("Ledger Updated."); });
+        } else {
+            db.ref('elections').push(data).then(() => { closeModal(); alert("Deployed to Ledger."); });
+        }
+    }
+
+    function getSymbol(type) {
+        switch(type) {
+            case 'University/College': return '🎓';
+            case 'National': return '🏛️';
+            case 'Organization/Society': return '🏢';
+            case 'State/Regional': return '🗺️';
+            default: return '🗳️';
+        }
+    }
+
+    function formatDate(dateStr) {
+        if(!dateStr) return 'TBD';
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    db.ref('elections').on('value', (snapshot) => {
+        const data = snapshot.val();
+        const mainList = document.getElementById('main-election-list');
+        const manageList = document.getElementById('management-election-list');
+        mainList.innerHTML = ""; manageList.innerHTML = "";
+        
+        let total = 0, active = 0;
+
+        for (let key in data) {
+            const el = data[key];
+            total++;
+            if(el.status === 'Active') active++;
+
+            const turnout = el.total_voters > 0 ? ((el.votes / el.total_voters) * 100).toFixed(1) : 0;
+            const symbol = getSymbol(el.type);
+            const statusClass = el.status.toLowerCase();
+
+            // Dynamic card with working panel functions
+            const cardHTML = `
+                <div class="election-card">
+                    <div class="card-top">
+                        <div class="level-symbol">${symbol}</div>
+                        <div class="election-info-text">
+                            <h4>${el.title}</h4>
+                            <p>${el.type}</p>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                            <div class="status-badge ${statusClass}">
+                                <span style="width: 8px; height: 8px; border-radius: 50%; background: currentColor;"></span>
+                                ${el.status}
+                            </div>
+                            <div class="three-dots" onclick="toggleDropdown(event, '${key}')">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                                <div class="slide-panel" id="panel-${key}">
+                                    <div class="panel-item" onclick='viewDetails("${key}", ${JSON.stringify(el)})'><i class="fa-solid fa-up-right-from-square"></i> View Details</div>
+                                    <div class="panel-item" onclick='openModal(true, "${key}", ${JSON.stringify(el)})'><i class="fa-solid fa-pen"></i> Edit Election</div>
+                                    <div class="panel-item delete" onclick="db.ref('elections/${key}').remove()"><i class="fa-solid fa-trash"></i> Delete</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-stats">
+                        <div class="stat-box"><span>Voters</span><strong>${el.total_voters.toLocaleString()}</strong></div>
+                        <div class="stat-box"><span>Votes Cast</span><strong>${el.votes.toLocaleString()}</strong></div>
+                        <div class="stat-box"><span>Turnout</span><strong class="turnout-val">${turnout}%</strong></div>
+                    </div>
+
+                    <div class="card-meta">
+                        <div class="meta-item"><i class="fa-regular fa-calendar"></i> ${formatDate(el.start_date)} - ${formatDate(el.end_date)}</div>
+                        <div class="hash-id"><span style="width: 8px; height: 8px; border-radius: 50%; background: currentColor;"></span> ${el.last_hash}</div>
+                    </div>
+                </div>
+            `;
+            mainList.innerHTML += cardHTML;
+            manageList.innerHTML += cardHTML;
+        }
+        document.getElementById('total-elec').innerText = total;
+        document.getElementById('active-elec').innerText = active;
+    });
+
+    function switchTab(targetId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(targetId).classList.add('active');
+        const navItem = document.querySelector(`[data-target="${targetId}"]`);
+        if(navItem) document.getElementById('view-title').innerText = navItem.innerText;
+    }
+
+    document.querySelectorAll('.nav-links li').forEach(li => {
+        li.addEventListener('click', () => switchTab(li.dataset.target));
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,347 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Matdaan | Secure Voter Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            /* Dark Mode Palette (Default) */
+            --bg-body: #0f172a;
+            --bg-overlay: rgba(15, 23, 42, 0.85);
+            --card-gradient: linear-gradient(145deg, #1e293b, #0f172a);
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #6366f1;
+            /* Electric Indigo */
+            --accent-hover: #4f46e5;
+            --input-bg: #1e293b;
+            --card-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            --border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .light-mode {
+            /* Light Mode Palette */
+            --bg-body: #f1f5f9;
+            --bg-overlay: rgba(241, 245, 249, 0.8);
+            --card-gradient: linear-gradient(145deg, #ffffff, #f8fafc);
+            --text-color: #1e293b;
+            --text-muted: #64748b;
+            --accent: #4f46e5;
+            --accent-hover: #4338ca;
+            --input-bg: #f8fafc;
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg-body);
+            color: var(--text-color);
+            overflow: hidden;
+        }
+
+        #videoBG {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: var(--bg-body);
+        }
+
+        #videoBG video {
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            opacity: 0.3;
+        }
+
+        .theme-utility {
+            position: fixed;
+            right: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+        }
+
+        .theme-btn {
+            background: var(--card-gradient);
+            border: 1px solid var(--border-color);
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--card-shadow);
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.1);
+            color: var(--text-color);
+            background: var(--accent);
+        }
+
+        #loginBox {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--bg-overlay);
+        }
+
+        .login-card {
+            width: 400px;
+            padding: 40px;
+            border-radius: 24px;
+            background: var(--card-gradient);
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            position: relative;
+            z-index: 10;
+        }
+
+        .admin-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--accent);
+            font-size: 12px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .admin-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .icon-box {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 20px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--accent), #818cf8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .icon-box video {
+            width: 120%;
+        }
+
+        h1 {
+            color: var(--text-color);
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .tricolor-wave {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(to right, #FF9933, #ffffff, #138808);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 25px;
+        }
+
+        .election-selector {
+            background: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .input-box {
+            display: flex;
+            align-items: center;
+            background: var(--input-bg);
+            padding: 14px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .input-box:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .input-box input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            outline: none;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        #mainBtn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            background: var(--accent);
+            font-weight: 700;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        #mainBtn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        #mainBtn:active {
+            transform: translateY(0);
+        }
+
+        #loader {
+            display: none;
+            margin: 15px 0;
+            color: var(--accent);
+            font-size: 14px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    {% csrf_token %}
+    <div id="videoBG"><video autoplay muted loop playsinline>
+            <source src="{% static 'intro2.mp4' %}" type="video/mp4">
+        </video></div>
+
+    <div class="theme-utility">
+        <button class="theme-btn" onclick="toggleTheme()"><i class="fa-solid fa-moon" id="themeIcon"></i></button>
+    </div>
+
+    <div id="loginBox">
+        <div class="login-card">
+            <a href="/admin/" class="admin-btn"><i class="fa-solid fa-user-shield"></i> <span>Admin</span></a>
+            <div class="icon-box"><video autoplay muted loop>
+                    <source src="{% static 'fingerprint.mp4' %}" type="video/mp4">
+                </video></div>
+
+            <h1>Blockchain Voting</h1>
+            <div class="tricolor-wave">मतदान</div>
+
+            <select id="electionSelect" class="election-selector">
+                <option value="">-- Select Active Election --</option>
+                {% for election in active_elections %}
+                <option value="{{ election.id }}">{{ election.title }}</option>
+                {% endfor %}
+            </select>
+
+            <div id="inputContainer">
+                <div class="input-box" id="authBox">
+                    <input type="text" id="authID" placeholder="Enter Aadhaar Number">
+                </div>
+            </div>
+
+            <div id="loader">🔄 Verifying Identity...</div>
+            <button id="mainBtn" onclick="handleLoginFlow()">Verify Identity</button>
+        </div>
+    </div>
+
+    <script>
+        async function handleLoginFlow() {
+            const electionId = document.getElementById('electionSelect').value;
+            const aadhaar = document.getElementById("authID").value.trim();
+
+            if (!electionId) return alert("Please select an election first");
+            if (!aadhaar) return alert("Please enter your Aadhaar number");
+
+            showLoading("Authenticating...");
+
+            // Call Login API
+            try {
+                const response = await fetch('/api/verify-login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        aadhaar_number: aadhaar
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Redirect to dashboard
+                    window.location.href = "{% url 'dashboard' %}";
+                } else {
+                    alert("Login Failed: " + data.message);
+                    hideLoading();
+                }
+            } catch (error) {
+                alert("System Error: " + error);
+                hideLoading();
+            }
+        }
+
+        function showLoading(msg) {
+            const loader = document.getElementById("loader");
+            const mainBtn = document.getElementById("mainBtn");
+            loader.innerText = msg;
+            loader.style.display = "block";
+            mainBtn.disabled = true;
+        }
+
+        function hideLoading() {
+            const loader = document.getElementById("loader");
+            const mainBtn = document.getElementById("mainBtn");
+            loader.style.display = "none";
+            mainBtn.disabled = false;
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle("light-mode");
+            const icon = document.getElementById('themeIcon');
+            if (document.body.classList.contains('light-mode')) {
+                icon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+            }
+        }
+    </script>
+</body>
+
+</html>

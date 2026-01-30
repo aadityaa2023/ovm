@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Campaign Details</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+    font-family: Arial;
+    background:#f3f4f6;
+    margin:0;
+    padding:30px;
+}
+
+.card{
+    background:white;
+    padding:25px;
+    border-radius:10px;
+    max-width:800px;
+    margin:auto;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+h2{
+    color:#2563eb;
+}
+
+.candidate{
+    background:#eef2ff;
+    padding:10px;
+    border-radius:6px;
+    margin-top:10px;
+}
+</style>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>Registered Campaign Details</h2>
+
+    <p><b>Title:</b> <span id="title"></span></p>
+    <p><b>Description:</b> <span id="desc"></span></p>
+    <p><b>Start Date:</b> <span id="start"></span></p>
+    <p><b>End Date:</b> <span id="end"></span></p>
+
+    <h3>Candidates</h3>
+    <div id="candidates"></div>
+
+    <br>
+    <button onclick="goBack()">Back to Dashboard</button>
+</div>
+
+<script>
+const data = JSON.parse(localStorage.getItem("campaignData"));
+
+if(!data){
+    alert("No Campaign Found!");
+    window.location.href = "AdminDashboard.html";
+}
+
+document.getElementById("title").innerText = data.title;
+document.getElementById("desc").innerText = data.desc;
+document.getElementById("start").innerText = data.start;
+document.getElementById("end").innerText = data.end;
+
+const container = document.getElementById("candidates");
+
+data.candidates.forEach(c => {
+    const div = document.createElement("div");
+    div.className = "candidate";
+    div.innerHTML = `
+        <b>Name:</b> ${c.name}<br>
+        <b>Position:</b> ${c.position}<br>
+        <img src="${c.photo}" width="100" style="margin-top:5px;border-radius:6px;">
+    `;
+    container.appendChild(div);
+});
+
+
+function goBack(){
+    window.location.href = "AdminDashboard.html";
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title id="page-title">Matdaan | Admin Identity Access</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+
+        :root {
+            --primary-red: #ff5252;
+            --accent-glow: rgba(255, 82, 82, 0.3);
+            --text-main: #ecf0f1;
+            --bg-body: #05080a;
+            --card-bg: rgba(15, 20, 25, 0.7);
+            --border-red: rgba(255, 82, 82, 0.2);
+            --input-bg: rgba(0, 0, 0, 0.3);
+            --glass: blur(15px);
+        }
+
+        .light-mode {
+            --bg-body: #f0f4f8;
+            --text-main: #1c2a38;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --border-red: rgba(255, 82, 82, 0.3);
+            --input-bg: rgba(255, 255, 255, 0.9);
+        }
+
+        * { box-sizing: border-box; font-family: 'Outfit', sans-serif; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
+        
+        body { 
+            margin: 0; padding: 0; background: var(--bg-body); color: var(--text-main); 
+            height: 100vh; overflow: hidden;
+            background-image: radial-gradient(circle at 50% 50%, rgba(255, 82, 82, 0.05) 0%, transparent 50%),
+                              url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&w=2000&q=80');
+            background-blend-mode: overlay; background-size: cover;
+        }
+
+        .page-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1; }
+
+        .utility-bar { position: fixed; top: 20px; right: 40px; z-index: 100; display: flex; gap: 15px; align-items: center; }
+        .util-btn {
+            background: var(--card-bg); border: 1px solid var(--border-red); backdrop-filter: var(--glass);
+            padding: 10px 18px; border-radius: 12px; cursor: pointer; color: var(--text-main); font-weight: 600;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3); font-size: 13px;
+        }
+        .util-btn:hover { border-color: var(--primary-red); transform: translateY(-2px); }
+
+        header {
+            position: fixed; top: 0; left: 0; width: 100%; display: flex;
+            justify-content: space-between; align-items: center; padding: 20px 60px;
+            z-index: 30; background: rgba(0,0,0,0.3); backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-red);
+        }
+
+        .emblem-wrap { display: flex; align-items: center; gap: 20px; }
+        .emblem-container {
+            width: 60px; height: 60px; border-radius: 50%; overflow: hidden;
+            border: 2px solid var(--primary-red); position: relative;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Emblem_of_India.svg/800px-Emblem_of_India.svg.png') no-repeat center center/contain;
+            background-color: #fff; box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .wrapper {
+            display: flex; height: 100vh; align-items: center; justify-content: center;
+            padding: 100px 10% 0; gap: 80px; z-index: 10; position: relative;
+        }
+
+        .content-left { flex: 1.2; animation: slideIn 1s ease-out; }
+        .info-card { 
+            background: var(--card-bg); padding: 40px; border-radius: 30px; 
+            border-right: 1px solid var(--border-red); border-bottom: 1px solid var(--border-red);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4); backdrop-filter: var(--glass);
+        }
+        .info-card h1 { font-size: 42px; color: var(--primary-red); margin: 0 0 20px; font-weight: 800; letter-spacing: -1px; }
+        .info-card p { font-size: 17px; line-height: 1.6; opacity: 0.85; margin: 0; }
+
+        .feature-pills { margin-top: 25px; display: flex; flex-wrap: wrap; gap: 12px; }
+        .feature-pill {
+            background: var(--card-bg); padding: 10px 20px; border-radius: 15px;
+            border: 1px solid var(--border-red); font-size: 13px; font-weight: 600;
+            display: flex; align-items: center; gap: 10px; backdrop-filter: var(--glass);
+        }
+        .feature-pill i { color: var(--primary-red); font-size: 16px; }
+
+        .auth-card {
+            width: 400px; padding: 50px 40px; background: var(--card-bg);
+            border-radius: 40px; box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            text-align: center; border: 1px solid var(--border-red); position: relative;
+            backdrop-filter: var(--glass); animation: fadeIn 0.8s ease-out;
+        }
+
+        .card-logo-circle {
+            width: 100px; height: 100px; background: #fff; border-radius: 30px;
+            margin: -95px auto 30px; border: 2px solid var(--primary-red);
+            padding: 15px; box-shadow: 0 15px 30px var(--accent-glow);
+            transform: rotate(-5deg);
+        }
+
+        .view { display: none; }
+        .view.active { display: block; }
+
+        h2 { font-size: 26px; margin-bottom: 8px; font-weight: 800; color: var(--text-main); }
+        .sub-head { font-size: 12px; color: var(--primary-red); text-transform: uppercase; font-weight: 700; letter-spacing: 2px; margin-bottom: 30px; }
+
+        input, select {
+            width: 100%; padding: 15px 20px; margin-bottom: 18px;
+            background: var(--input-bg); border: 1px solid var(--border-red);
+            border-radius: 15px; color: var(--text-main); outline: none; font-size: 15px;
+        }
+        input:focus { border-color: var(--primary-red); box-shadow: 0 0 10px var(--accent-glow); }
+
+        .btn-auth {
+            width: 100%; padding: 16px; background: var(--primary-red);
+            border: none; border-radius: 18px; color: #fff; font-weight: 700;
+            font-size: 16px; cursor: pointer; margin-top: 10px;
+            box-shadow: 0 10px 20px var(--accent-glow);
+        }
+        .btn-auth:hover { transform: scale(1.02); filter: saturate(1.2); }
+
+        .link-text { display: block; margin-top: 20px; font-size: 14px; color: var(--primary-red); cursor: pointer; font-weight: 600; text-decoration: none; }
+        .link-text:hover { text-decoration: underline; }
+
+        .footer-tag { margin-top: 30px; font-size: 11px; font-weight: 700; opacity: 0.5; letter-spacing: 2px; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-30px); } }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+</head>
+<body>
+
+<div class="page-overlay"></div>
+
+<div class="utility-bar">
+    <select id="lang-select" class="util-btn" onchange="changeLang()">
+        <option value="en">English</option>
+        <option value="hi">हिन्दी (Hindi)</option>
+        <option value="bn">বাংলা (Bengali)</option>
+        <option value="te">తెలుగు (Telugu)</option>
+        <option value="mr">मराठी (Marathi)</option>
+        <option value="ta">தமிழ் (Tamil)</option>
+        <option value="gu">ગુજરાતી (Gujarati)</option>
+        <option value="ur">اردو (Urdu)</option>
+        <option value="kn">ಕನ್ನಡ (Kannada)</option>
+        <option value="ml">മലയാളം (Malayalam)</option>
+        <option value="or">ଓଡ଼ିଆ (Odia)</option>
+        <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+        <option value="as">অসমীয়া (Assamese)</option>
+        <option value="ma">मैथिली (Maithili)</option>
+        <option value="sa">संस्कृतम् (Sanskrit)</option>
+        <option value="ks">کٲشُر (Kashmiri)</option>
+        <option value="sd">سنڌي (Sindhi)</option>
+        <option value="kok">कोंकणी (Konkani)</option>
+        <option value="mni">মৈতেইলোন (Manipuri)</option>
+        <option value="ne">नेपाली (Nepali)</option>
+        <option value="brx">बड़ो (Bodo)</option>
+        <option value="doi">डोगरी (Dogri)</option>
+    </select>
+    <button class="util-btn" onclick="toggleTheme()">
+        <i class="fa-solid fa-moon" id="themeIcon"></i>
+    </button>
+</div>
+
+<header>
+    <div class="emblem-wrap">
+        <div class="emblem-container"></div>
+        <div>
+            <h3 id="brand-name" style="margin:0; font-size:24px; font-weight:800; letter-spacing: 1px;">MATDAAN</h3>
+            <p id="brand-sub" style="margin:0; font-size:9px; color:var(--primary-red); font-weight:800; letter-spacing:2px;">BLOCKCHAIN PROTOCOL</p>
+        </div>
+    </div>
+</header>
+
+<div class="wrapper">
+    <div class="content-left">
+        <div class="info-card">
+            <h1 id="about-title">About Matdaan</h1>
+            <p id="about-text">Matdaan is a next-generation blockchain voting system designed to eliminate fraud and ensure election integrity. By using a decentralized ledger, every vote becomes immutable and globally verifiable.</p>
+        </div>
+        <div class="feature-pills">
+            <div class="feature-pill"><i class="fa-solid fa-shield-halved"></i> <span id="f1">Fraud-Proof</span></div>
+            <div class="feature-pill"><i class="fa-solid fa-bolt-lightning"></i> <span id="f2">Real-time Sync</span></div>
+            <div class="feature-pill"><i class="fa-solid fa-network-wired"></i> <span id="f3">Decentralized</span></div>
+        </div>
+    </div>
+
+    <div class="auth-card">
+        <div class="card-logo-circle">
+            <img src="https://cdn-icons-png.flaticon.com/512/927/927250.png" alt="Logo" style="width:100%; height:100%; object-fit:contain;">
+        </div>
+
+        <div id="login-view" class="view active">
+            <h2 id="login-head">Admin Identity Access</h2>
+            <div id="crypto-tag" class="sub-head">256-Bit AES Secure</div>
+            <div style="position:relative;">
+                <input type="text" id="user" placeholder="Admin Username">
+            </div>
+            <div style="position:relative;">
+                <input type="password" id="pass" placeholder="Password">
+            </div>
+            <button class="btn-auth" id="login-btn" onclick="login()">AUTHORIZE SESSION</button>
+            
+            <span class="link-text" id="go-admin-reg" onclick="window.location.href='admin_registration.html'">
+                <i class="fa-solid fa-user-plus"></i> Admin Registration
+            </span>
+        </div>
+
+        <div class="footer-tag">
+            <i class="fa-solid fa-lock"></i> <span id="node-tag">Blockchain Node : Active</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    const langData = {
+        en: { brand: "MATDAAN", sub: "BLOCKCHAIN PROTOCOL", about: "About Matdaan", text: "Matdaan is a next-generation blockchain voting system designed to eliminate fraud and ensure election integrity. By using a decentralized ledger, every vote becomes immutable and globally verifiable.", login: "Admin Identity Access", btn: "AUTHORIZE SESSION", userPl: "Admin Username", passPl: "Password", f1: "Fraud-Proof", f2: "Real-time Sync", f3: "Decentralized", node: "Blockchain Node : Active" },
+        hi: { brand: "मतदान", sub: "ब्लॉकचेन प्रोटोकॉल", about: "मतदान के बारे में", text: "मतदान एक अगली पीढ़ी की ब्लॉकचेन वोटिंग प्रणाली है जिसे धोखाधड़ी को खत्म करने और चुनाव अखंडता सुनिश्चित करने के लिए डिज़ाइन किया गया है।", login: "एडमिन पहचान पहुंच", btn: "सत्र अधिकृत करें", userPl: "यूजरनेम", passPl: "पासवर्ड", f1: "धोखाधड़ी-मुक्त", f2: "रियल-टाइम सिंक", f3: "विकेंद्रीकृत", node: "ब्लॉकचेन नोड: सक्रिय" }
+    };
+
+    function changeLang() {
+        const l = document.getElementById('lang-select').value;
+        const d = langData[l];
+        if(!d) return;
+        document.getElementById('brand-name').innerText = d.brand;
+        document.getElementById('brand-sub').innerText = d.sub;
+        document.getElementById('about-title').innerText = d.about;
+        document.getElementById('about-text').innerText = d.text;
+        document.getElementById('f1').innerText = d.f1;
+        document.getElementById('f2').innerText = d.f2;
+        document.getElementById('f3').innerText = d.f3;
+        document.getElementById('login-head').innerText = d.login;
+        document.getElementById('login-btn').innerText = d.btn;
+        document.getElementById('user').placeholder = d.userPl;
+        document.getElementById('pass').placeholder = d.passPl;
+        document.getElementById('node-tag').innerText = d.node;
+    }
+
+    function login() {
+    const u = document.getElementById('user').value;
+    const p = document.getElementById('pass').value;
+
+    // Check the 'admins' node in Firebase
+    database.ref('admins/' + u).once('value').then((snapshot) => {
+        const admin = snapshot.val();
+        
+        // Simple verification (In a real project, you'd use Firebase Auth)
+        if (admin && admin.status === "Active") {
+            window.location.href = "AdminDashboard.html";
+        } else {
+            alert("Access Denied: Admin identity not found in cloud ledger.");
+        }
+    });
+}   
+    function toggleTheme() {
+        document.body.classList.toggle("light-mode");
+        const icon = document.getElementById("themeIcon");
+        if (document.body.classList.contains("light-mode")) {
+            icon.classList.replace("fa-moon", "fa-sun");
+        } else {
+            icon.classList.replace("fa-sun", "fa-moon");
+        }
+    }
+</script>
+
+</body>
+</html>

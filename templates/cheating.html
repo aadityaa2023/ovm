@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Security Violation - Session Terminated</title>
+    <style>
+        :root {
+            --hazard-red: #ff0000;
+            --dark-base: #0a0000;
+        }
+
+        body {
+            background: var(--dark-base);
+            color: var(--hazard-red);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .container {
+            border: 2px solid var(--hazard-red);
+            padding: 40px;
+            background: rgba(255, 0, 0, 0.05);
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        video {
+            width: 400px;
+            border: 3px solid var(--hazard-red);
+            border-radius: 8px;
+            margin: 20px 0;
+            filter: grayscale(1) contrast(1.5);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            animation: blink 0.8s infinite;
+        }
+
+        .status-box {
+            background: var(--hazard-red);
+            color: black;
+            padding: 10px 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        #log-data {
+            font-size: 0.8rem;
+            color: #550000;
+            margin-top: 20px;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🚨 VIOLATION DETECTED 🚨</h1>
+    <div class="status-box">SESSION TERMINATED & IP LOGGED</div>
+    
+    <video autoplay loop muted>
+        <source src="https://cdn.pixabay.com/video/2023/03/16/154745-808623644_large.mp4" type="video/mp4">
+    </video>
+
+    <p>Multiple Faces or Tab Switching Detected.<br>Your Voter ID has been flagged for manual review.</p>
+    
+    <div id="log-data">
+        Timestamp: <span id="time"></span> | Node: 0x82...BF3 | Protocol: SEC-BLOCK-V2
+    </div>
+</div>
+
+<script>
+    document.getElementById('time').innerText = new Date().toLocaleString();
+
+    // Prevent right-click to hide source
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    // Anti-Escape: If they try to leave, alert them (limited by browser security)
+    window.onbeforeunload = function() {
+        return "Violation report is being uploaded to the blockchain. Closing this will result in a permanent ban.";
+    };
+
+    // Add this to cheating.html script
+history.pushState(null, null, location.href);
+window.onpopstate = function () {
+    history.go(1);
+};
+</script>
+</body>
+</html>
