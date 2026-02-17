@@ -320,3 +320,4 @@ For questions or issues, please refer to the project documentation.
 ---
 
 **Built with ❤️ for secure and transparent elections**
+
