@@ -1,0 +1,355 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - OVM System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        color: white;
+        padding: 40px 0;
+    }
+    
+    .stats-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .election-card {
+        border-left: 4px solid #007bff;
+        transition: all 0.3s ease;
+    }
+    
+    .election-card:hover {
+        border-left-color: #28a745;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .voted-card {
+        border-left-color: #28a745;
+        background-color: #f8fff9;
+    }
+    
+    .voter-info {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+    }
+    
+    .badge-status {
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<section class="dashboard-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-5 mb-2">
+                    <i class="fas fa-tachometer-alt me-3"></i>
+                    Voter Dashboard
+                </h1>
+                <p class="lead mb-0">Welcome back, {{ voter.name }}</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="badge badge-status bg-light text-dark p-3">
+                    <i class="fas fa-id-card me-2"></i>
+                    ID: {{ voter.aadhaar_number }}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row">
+        <!-- Voter Information -->
+        <div class="col-lg-4 mb-4">
+            <div class="card voter-info">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>
+                        Voter Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Name:</strong><br>
+                        <span class="text-primary">{{ voter.name }}</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Aadhaar:</strong><br>
+                        {{ voter.aadhaar_number }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Constituency:</strong><br>
+                        {{ voter.constituency.name }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>State:</strong><br>
+                        {{ voter.state.name }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Verification Status:</strong><br>
+                        {% if voter.is_verified %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-check-circle me-1"></i>
+                                Verified
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger">
+                                <i class="fas fa-times-circle me-1"></i>
+                                Not Verified
+                            </span>
+                        {% endif %}
+                    </div>
+                    <div class="mb-0">
+                        <strong>Member Since:</strong><br>
+                        <small class="text-muted">{{ voter.created_at|date:"M d, Y" }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Elections Section -->
+        <div class="col-lg-8">
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-sm-4 mb-3">
+                    <div class="card stats-card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-vote-yea fa-2x text-primary mb-2"></i>
+                            <h4 class="text-primary">{{ active_elections.count }}</h4>
+                            <small class="text-muted">Active Elections</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4 mb-3">
+                    <div class="card stats-card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                            <h4 class="text-success">{{ voted_elections|length }}</h4>
+                            <small class="text-muted">Votes Cast</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4 mb-3">
+                    <div class="card stats-card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                            <h4 class="text-warning">{{ active_elections.count|add:voted_elections|length|default:0 }}</h4>
+                            <small class="text-muted">Total Available</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Active Elections List -->
+            <div class="card">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-poll me-2"></i>
+                        Available Elections
+                    </h5>
+                    <span class="badge bg-light text-dark">{{ active_elections.count }} Active</span>
+                </div>
+                <div class="card-body">
+                    {% if active_elections %}
+                        {% for election in active_elections %}
+                            <div class="card election-card mb-3 {% if election.id in voted_elections %}voted-card{% endif %}">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-8">
+                                            <h5 class="card-title mb-2">
+                                                {{ election.title }}
+                                                {% if election.id in voted_elections %}
+                                                    <span class="badge bg-success ms-2">
+                                                        <i class="fas fa-check me-1"></i>Voted
+                                                    </span>
+                                                {% endif %}
+                                            </h5>
+                                            <p class="card-text text-muted">{{ election.description|truncatewords:25 }}</p>
+                                            <div class="row">
+                                                <div class="col-sm-6">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-calendar-alt me-1"></i>
+                                                        Start: {{ election.start_date|date:"M d, Y H:i" }}
+                                                    </small>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-calendar-times me-1"></i>
+                                                        End: {{ election.end_date|date:"M d, Y H:i" }}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 text-end">
+                                            {% if election.id in voted_elections %}
+                                                <button class="btn btn-outline-success" disabled>
+                                                    <i class="fas fa-check-circle me-2"></i>
+                                                    Already Voted
+                                                </button>
+                                            {% else %}
+                                                <div class="d-grid">
+                                                    <span class="badge bg-success mb-2">
+                                                        <i class="fas fa-circle me-1"></i>LIVE
+                                                    </span>
+                                                    <a href="{% url 'vote_page' election.id %}" class="btn btn-primary">
+                                                        <i class="fas fa-vote-yea me-2"></i>
+                                                        Vote Now
+                                                    </a>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-ballot-check fa-4x text-muted mb-4"></i>
+                            <h4 class="text-muted">No Active Elections</h4>
+                            <p class="text-muted">There are no elections available for your constituency at the moment.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>
+                        Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <div class="d-grid">
+                                <button class="btn btn-outline-primary" onclick="refreshPage()">
+                                    <i class="fas fa-sync-alt me-2"></i>
+                                    Refresh Elections
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="d-grid">
+                                <button class="btn btn-outline-info" onclick="showVoteHistory()">
+                                    <i class="fas fa-history me-2"></i>
+                                    Vote History
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="d-grid">
+                                <button class="btn btn-outline-success" onclick="verifyVotes()">
+                                    <i class="fas fa-shield-alt me-2"></i>
+                                    Verify Votes
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="d-grid">
+                                <a href="{% url 'logout' %}" class="btn btn-outline-danger">
+                                    <i class="fas fa-sign-out-alt me-2"></i>
+                                    Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vote History Modal -->
+<div class="modal fade" id="voteHistoryModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-history me-2"></i>
+                    Your Vote History
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="voteHistoryContent">
+                <div class="text-center">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                    <p class="mt-2">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function refreshPage() {
+    location.reload();
+}
+
+function showVoteHistory() {
+    $('#voteHistoryModal').modal('show');
+    
+    // Simulate loading vote history
+    setTimeout(function() {
+        let historyHtml = `
+            <div class="row">
+                {% for election_id in voted_elections %}
+                <div class="col-12 mb-3">
+                    <div class="card border-success">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Election #{{ election_id }}</h6>
+                                    <small class="text-muted">Vote cast successfully</small>
+                                </div>
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    Verified
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-4">
+                    <i class="fas fa-vote-yea fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">You haven't cast any votes yet.</p>
+                </div>
+                {% endfor %}
+            </div>
+        `;
+        
+        $('#voteHistoryContent').html(historyHtml);
+    }, 1000);
+}
+
+function verifyVotes() {
+    alert('Vote verification feature will redirect to blockchain verification portal.');
+}
+
+// Auto-refresh every 5 minutes
+setInterval(function() {
+    console.log('Checking for new elections...');
+}, 300000);
+</script>
+{% endblock %}

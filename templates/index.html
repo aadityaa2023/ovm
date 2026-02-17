@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login - OVM System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 80px 0;
+    }
+    
+    .login-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+    }
+    
+    .election-card {
+        transition: transform 0.3s ease;
+    }
+    
+    .election-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .webcam-container {
+        position: relative;
+        max-width: 320px;
+        margin: 0 auto;
+    }
+    
+    #webcam {
+        width: 100%;
+        border-radius: 8px;
+    }
+    
+    .capture-btn {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-4 mb-4">
+            <i class="fas fa-vote-yea"></i>
+            Secure Online Voting System
+        </h1>
+        <p class="lead">Democratic, Transparent, and Blockchain-Secured Voting</p>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row">
+        <!-- Login Section -->
+        <div class="col-lg-6 mb-4">
+            <div class="card login-card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        Voter Login
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="aadhaarinput" class="form-label">
+                                <i class="fas fa-id-card me-2"></i>
+                                Aadhaar Number
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="aadhaarinput" 
+                                   placeholder="Enter 12-digit Aadhaar number" maxlength="12" required>
+                            <div class="form-text">Enter your 12-digit Aadhaar number</div>
+                        </div>
+                        
+                        <!-- Face Verification Section -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-camera me-2"></i>
+                                Face Verification
+                            </label>
+                            <div class="webcam-container mb-3">
+                                <video id="webcam" autoplay muted></video>
+                                <button type="button" class="btn btn-success capture-btn" id="captureBtn">
+                                    <i class="fas fa-camera"></i> Capture
+                                </button>
+                            </div>
+                            <canvas id="canvas" style="display: none;"></canvas>
+                            <div id="capturedImage" style="display: none;">
+                                <img id="capturedImg" class="img-fluid rounded" alt="Captured Image">
+                                <button type="button" class="btn btn-sm btn-secondary mt-2" id="retakeBtn">
+                                    <i class="fas fa-redo"></i> Retake
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100" id="loginBtn">
+                            <i class="fas fa-key me-2"></i>
+                            Verify & Login
+                        </button>
+                    </form>
+                    
+                    <!-- Login Status -->
+                    <div id="loginStatus" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Active Elections Section -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-poll me-2"></i>
+                        Active Elections
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if active_elections %}
+                        {% for election in active_elections %}
+                            <div class="card election-card mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ election.title }}</h5>
+                                    <p class="card-text">{{ election.description|truncatewords:20 }}</p>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar-alt me-1"></i>
+                                                {{ election.start_date|date:"M d, Y H:i" }}
+                                            </small>
+                                        </div>
+                                        <div class="col-sm-6 text-end">
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-circle me-1"></i>LIVE
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-ballot-check fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No active elections at the moment</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Features Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="text-center mb-5">Why Choose Our Voting System?</h2>
+        </div>
+        <div class="col-md-4 text-center mb-4">
+            <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+            <h5>Blockchain Security</h5>
+            <p>Every vote is secured on blockchain technology, ensuring immutability and transparency.</p>
+        </div>
+        <div class="col-md-4 text-center mb-4">
+            <i class="fas fa-user-check fa-3x text-success mb-3"></i>
+            <h5>Biometric Verification</h5>
+            <p>Advanced face recognition and liveness detection prevent fraud and ensure authentic voting.</p>
+        </div>
+        <div class="col-md-4 text-center mb-4">
+            <i class="fas fa-mobile-alt fa-3x text-info mb-3"></i>
+            <h5>Accessible Anywhere</h5>
+            <p>Vote securely from anywhere using any device with internet connectivity.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    let webcamStream = null;
+    let capturedImageData = null;
+    
+    // Initialize webcam
+    function initializeWebcam() {
+        navigator.mediaDevices.getUserMedia({ 
+            video: { width: 320, height: 240 } 
+        })
+        .then(function(stream) {
+            webcamStream = stream;
+            document.getElementById('webcam').srcObject = stream;
+        })
+        .catch(function(error) {
+            console.error('Error accessing webcam:', error);
+            $('#loginStatus').html('<div class="alert alert-warning">Unable to access camera. Please check permissions.</div>');
+        });
+    }
+    
+    // Capture image
+    $('#captureBtn').click(function() {
+        const video = document.getElementById('webcam');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        
+        ctx.drawImage(video, 0, 0);
+        capturedImageData = canvas.toDataURL('image/jpeg', 0.8);
+        
+        // Display captured image
+        $('#capturedImg').attr('src', capturedImageData);
+        $('#capturedImage').show();
+        $('.webcam-container').hide();
+    });
+    
+    // Retake image
+    $('#retakeBtn').click(function() {
+        $('#capturedImage').hide();
+        $('.webcam-container').show();
+        capturedImageData = null;
+    });
+    
+    // Aadhaar number validation
+    $('#aadhaarinput').on('input', function() {
+        this.value = this.value.replace(/\D/g, '');
+    });
+    
+    // Login form submission
+    $('#loginForm').submit(function(e) {
+        e.preventDefault();
+        
+        const aadhaarNumber = $('#aadhaarinput').val().trim();
+        
+        // Validation
+        if (!aadhaarNumber || aadhaarNumber.length !== 12) {
+            $('#loginStatus').html('<div class="alert alert-danger">Please enter a valid 12-digit Aadhaar number.</div>');
+            return;
+        }
+        
+        if (!capturedImageData) {
+            $('#loginStatus').html('<div class="alert alert-danger">Please capture your face image for verification.</div>');
+            return;
+        }
+        
+        // Show loading
+        $('#loginBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Verifying...');
+        
+        // Send login request
+        $.ajax({
+            url: '{% url "api_verify_login" %}',
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            data: JSON.stringify({
+                aadhaar_number: aadhaarNumber,
+                face_image: capturedImageData
+            }),
+            contentType: 'application/json',
+            success: function(response) {
+                if (response.success) {
+                    $('#loginStatus').html('<div class="alert alert-success">Login successful! Redirecting...</div>');
+                    setTimeout(function() {
+                        window.location.href = '{% url "dashboard" %}';
+                    }, 1500);
+                } else {
+                    $('#loginStatus').html('<div class="alert alert-danger">' + response.message + '</div>');
+                }
+            },
+            error: function(xhr, status, error) {
+                $('#loginStatus').html('<div class="alert alert-danger">Login failed. Please try again.</div>');
+            },
+            complete: function() {
+                $('#loginBtn').prop('disabled', false).html('<i class="fas fa-key me-2"></i>Verify & Login');
+            }
+        });
+    });
+    
+    // Initialize webcam on page load
+    initializeWebcam();
+});
+</script>
+{% endblock %}

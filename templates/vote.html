@@ -1,0 +1,472 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Vote - {{ election.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .vote-header {
+        background: linear-gradient(135deg, #FF6B6B 0%, #FF5722 100%);
+        color: white;
+        padding: 40px 0;
+    }
+    
+    .candidate-card {
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+    }
+    
+    .candidate-card:hover {
+        border-color: #007bff;
+        box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
+        transform: translateY(-3px);
+    }
+    
+    .candidate-card.selected {
+        border-color: #28a745;
+        background-color: #f8fff9;
+        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.15);
+    }
+    
+    .candidate-photo {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid #fff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .party-symbol {
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+    }
+    
+    .vote-confirmation {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 20px;
+    }
+    
+    .security-notice {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+        color: #000;
+        border-radius: 15px;
+        padding: 15px;
+    }
+    
+    .selection-indicator {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: #28a745;
+        color: white;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .candidate-card.selected .selection-indicator {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Vote Header -->
+<section class="vote-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-5 mb-2">
+                    <i class="fas fa-vote-yea me-3"></i>
+                    Cast Your Vote
+                </h1>
+                <p class="lead mb-0">{{ election.title }}</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="badge bg-light text-dark p-3">
+                    <i class="fas fa-user me-2"></i>
+                    {{ voter.name }}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <!-- Election Information -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Election Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4>{{ election.title }}</h4>
+                            <p class="mb-3">{{ election.description }}</p>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <strong>Constituency:</strong> {{ voter.constituency.name }}<br>
+                                    <strong>State:</strong> {{ voter.state.name }}
+                                </div>
+                                <div class="col-sm-6">
+                                    <strong>Election Type:</strong> {{ election.get_election_type_display }}<br>
+                                    <strong>Total Candidates:</strong> {{ candidates.count }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="mb-2">
+                                <span class="badge bg-success fs-6">
+                                    <i class="fas fa-circle me-1"></i>LIVE
+                                </span>
+                            </div>
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                Ends: {{ election.end_date|date:"M d, Y H:i" }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Security Notice -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="security-notice">
+                <h6 class="mb-2">
+                    <i class="fas fa-shield-alt me-2"></i>
+                    Security Notice
+                </h6>
+                <p class="mb-0">
+                    Your vote is completely anonymous and will be secured on blockchain. 
+                    Once submitted, it cannot be changed. Please verify your selection carefully before confirming.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Candidates List -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="mb-4">
+                <i class="fas fa-users me-2"></i>
+                Select Your Candidate
+            </h3>
+        </div>
+        
+        {% if candidates %}
+            {% for candidate in candidates %}
+                <div class="col-lg-6 col-xl-4 mb-4">
+                    <div class="card candidate-card" data-candidate-id="{{ candidate.id }}">
+                        <div class="selection-indicator">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="card-body text-center p-4">
+                            <!-- Candidate Photo -->
+                            <div class="mb-3">
+                                {% if candidate.photo %}
+                                    <img src="{{ candidate.photo.url }}" alt="{{ candidate.name }}" class="candidate-photo">
+                                {% else %}
+                                    <div class="candidate-photo bg-secondary d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-user fa-3x text-white"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Candidate Information -->
+                            <h5 class="card-title">{{ candidate.name }}</h5>
+                            <p class="text-muted mb-2">{{ candidate.party_name }}</p>
+                            
+                            <!-- Party Symbol -->
+                            {% if candidate.party_symbol %}
+                                <div class="mb-3">
+                                    <img src="{{ candidate.party_symbol.url }}" alt="{{ candidate.party_name }}" class="party-symbol">
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Manifesto Preview -->
+                            {% if candidate.manifesto %}
+                                <div class="text-start">
+                                    <small class="text-muted">
+                                        <strong>Key Points:</strong><br>
+                                        {{ candidate.manifesto|truncatewords:15 }}
+                                    </small>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-transparent text-center">
+                            <button class="btn btn-outline-primary candidate-select-btn" data-candidate-id="{{ candidate.id }}">
+                                <i class="fas fa-hand-pointer me-2"></i>
+                                Select This Candidate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                        <h4>No Candidates Available</h4>
+                        <p class="text-muted">There are no candidates registered for your constituency in this election.</p>
+                        <a href="{% url 'dashboard' %}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Vote Confirmation -->
+    <div class="row" id="confirmationSection" style="display: none;">
+        <div class="col-12">
+            <div class="vote-confirmation">
+                <div class="text-center">
+                    <h4 class="mb-3">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Confirm Your Vote
+                    </h4>
+                    <p class="mb-3">You have selected:</p>
+                    <div id="selectedCandidate" class="mb-4"></div>
+                    
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-light btn-lg me-3" onclick="cancelSelection()">
+                                <i class="fas fa-times me-2"></i>
+                                Cancel
+                            </button>
+                            <button type="button" class="btn btn-warning btn-lg" onclick="confirmVote()">
+                                <i class="fas fa-vote-yea me-2"></i>
+                                Confirm Vote
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vote Status Modal -->
+<div class="modal fade" id="voteStatusModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Vote Status</h5>
+            </div>
+            <div class="modal-body text-center" id="voteStatusContent">
+                <i class="fas fa-spinner fa-spin fa-3x mb-3"></i>
+                <p>Processing your vote...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vote Receipt Modal -->
+<div class="modal fade" id="voteReceiptModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-receipt me-2"></i>
+                    Vote Receipt
+                </h5>
+            </div>
+            <div class="modal-body" id="voteReceiptContent"></div>
+            <div class="modal-footer">
+                <a href="{% url 'dashboard' %}" class="btn btn-primary">
+                    <i class="fas fa-tachometer-alt me-2"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedCandidateId = null;
+let selectedCandidateData = null;
+
+$(document).ready(function() {
+    // Candidate selection
+    $('.candidate-card').click(function() {
+        const candidateId = $(this).data('candidate-id');
+        selectCandidate(candidateId, this);
+    });
+    
+    $('.candidate-select-btn').click(function(e) {
+        e.stopPropagation();
+        const candidateId = $(this).data('candidate-id');
+        const candidateCard = $(this).closest('.candidate-card')[0];
+        selectCandidate(candidateId, candidateCard);
+    });
+});
+
+function selectCandidate(candidateId, cardElement) {
+    // Remove previous selections
+    $('.candidate-card').removeClass('selected');
+    
+    // Select current candidate
+    $(cardElement).addClass('selected');
+    selectedCandidateId = candidateId;
+    
+    // Get candidate data
+    const candidateName = $(cardElement).find('.card-title').text();
+    const partyName = $(cardElement).find('.text-muted').first().text();
+    
+    selectedCandidateData = {
+        id: candidateId,
+        name: candidateName,
+        party: partyName
+    };
+    
+    // Show confirmation section
+    showConfirmation();
+}
+
+function showConfirmation() {
+    const confirmationHtml = `
+        <h5>${selectedCandidateData.name}</h5>
+        <p class="mb-0">${selectedCandidateData.party}</p>
+    `;
+    
+    $('#selectedCandidate').html(confirmationHtml);
+    $('#confirmationSection').show();
+    
+    // Scroll to confirmation
+    $('html, body').animate({
+        scrollTop: $('#confirmationSection').offset().top - 100
+    }, 500);
+}
+
+function cancelSelection() {
+    $('.candidate-card').removeClass('selected');
+    $('#confirmationSection').hide();
+    selectedCandidateId = null;
+    selectedCandidateData = null;
+}
+
+function confirmVote() {
+    if (!selectedCandidateId) {
+        alert('Please select a candidate first.');
+        return;
+    }
+    
+    // Show vote processing modal
+    $('#voteStatusModal').modal('show');
+    
+    // Send vote request
+    $.ajax({
+        url: '{% url "api_cast_vote" %}',
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        data: JSON.stringify({
+            election_id: parseInt('{{ election.id }}'),
+            candidate_id: selectedCandidateId
+        }),
+        contentType: 'application/json',
+        success: function(response) {
+            $('#voteStatusModal').modal('hide');
+            
+            if (response.success) {
+                showVoteReceipt(response);
+            } else {
+                showVoteError(response.message);
+            }
+        },
+        error: function(xhr, status, error) {
+            $('#voteStatusModal').modal('hide');
+            showVoteError('Failed to cast vote. Please try again.');
+        }
+    });
+}
+
+function showVoteReceipt(response) {
+    const receiptHtml = `
+        <div class="text-center">
+            <div class="mb-4">
+                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                <h4>Vote Cast Successfully!</h4>
+            </div>
+            
+            <div class="row text-start">
+                <div class="col-6"><strong>Candidate:</strong></div>
+                <div class="col-6">${selectedCandidateData.name}</div>
+                
+                <div class="col-6"><strong>Party:</strong></div>
+                <div class="col-6">${selectedCandidateData.party}</div>
+                
+                <div class="col-6"><strong>Election:</strong></div>
+                <div class="col-6">{{ election.title }}</div>
+                
+                <div class="col-6"><strong>Timestamp:</strong></div>
+                <div class="col-6">${new Date(response.timestamp).toLocaleString()}</div>
+                
+                <div class="col-6"><strong>Receipt Hash:</strong></div>
+                <div class="col-6"><small class="text-muted">${response.receipt_hash}</small></div>
+                
+                <div class="col-6"><strong>Blockchain Hash:</strong></div>
+                <div class="col-6"><small class="text-muted">${response.blockchain_hash}</small></div>
+            </div>
+            
+            <div class="alert alert-info mt-3">
+                <small>
+                    <i class="fas fa-info-circle me-1"></i>
+                    Save this receipt hash for future verification of your vote.
+                </small>
+            </div>
+        </div>
+    `;
+    
+    $('#voteReceiptContent').html(receiptHtml);
+    $('#voteReceiptModal').modal('show');
+}
+
+function showVoteError(message) {
+    const errorHtml = `
+        <div class="text-center">
+            <i class="fas fa-times-circle fa-3x text-danger mb-3"></i>
+            <h4>Vote Failed</h4>
+            <p class="text-danger">${message}</p>
+            <button class="btn btn-primary" onclick="location.reload()">Try Again</button>
+        </div>
+    `;
+    
+    $('#voteStatusContent').html(errorHtml);
+}
+
+// Prevent accidental navigation
+window.addEventListener('beforeunload', function (e) {
+    if (selectedCandidateId && !$('#voteReceiptModal').hasClass('show')) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
+</script>
+{% endblock %}

@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import sys
 import os
+from django.templatetags.static import static
+from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -36,6 +38,15 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'unfold',  # before django.contrib.admin
+    'unfold.contrib.filters',  # optional, if special filters are used
+    'unfold.contrib.forms',  # optional, if special form elements are used
+    'unfold.contrib.inlines',  # optional, if special inlines are used
+    'unfold.contrib.import_export',  # optional, if django-import-export package is used
+    'unfold.contrib.guardian',  # optional, if django-guardian package is used
+    'unfold.contrib.simple_history',  # optional, if django-simple-history package is used
+    'admin_interface',
+    'colorfield',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -125,6 +136,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # Media files (User uploaded content)
@@ -142,4 +154,88 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 # Custom user model (we'll use extended voter model)
 # AUTH_USER_MODEL = 'voting.Voter'  # Temporarily commented for initial migration
+
+# Django Unfold Configuration
+UNFOLD = {
+    "SITE_TITLE": "OVM Admin",
+    "SITE_HEADER": "Online Voting Management System",
+    "SITE_URL": "/",
+    "SITE_ICON": {
+        "light": lambda request: static("img/icon-light.svg"),  # light mode
+        "dark": lambda request: static("img/icon-dark.svg"),  # dark mode
+    },
+    "SITE_LOGO": {
+        "light": lambda request: static("img/logo-light.svg"),  # light mode
+        "dark": lambda request: static("img/logo-dark.svg"),  # dark mode
+    },
+    "SITE_SYMBOL": "ballot_box",  # symbol from icon set
+    "SITE_FAVICONS": [
+        {
+            "rel": "icon",
+            "sizes": "32x32",
+            "type": "image/svg+xml",
+            "href": lambda request: static("img/favicon.svg"),
+        },
+    ],
+    "SHOW_HISTORY": True, # show/hide "History" button, default: True
+    "SHOW_VIEW_ON_SITE": True, # show/hide "View on site" button, default: True
+    "ENVIRONMENT": "ovm.settings.get_environment",
+    "DASHBOARD_CALLBACK": "ovm.settings.dashboard_callback",
+    "COLORS": {
+        "primary": {
+            "50": "250 245 255",
+            "100": "243 232 255", 
+            "200": "233 213 255",
+            "300": "216 180 254",
+            "400": "196 141 253",
+            "500": "168 85 247",
+            "600": "147 51 234",
+            "700": "126 34 206",
+            "800": "107 33 168",
+            "900": "88 28 135",
+            "950": "59 7 100",
+        },
+    },
+    "EXTENSIONS": {
+        "modeltranslation": {
+            "flags": {
+                "en": "🇬🇧",
+                "fr": "🇫🇷",
+                "nl": "🇳🇱",
+            },
+        },
+    },
+    "SIDEBAR": {
+        "show_search": True,  # Search in navigation
+        "show_all_applications": True,  # Dropdown with all applications and models
+        "navigation": [
+            {
+                "title": "Navigation",
+                "separator": True,  # Top level
+                "items": [
+                    {
+                        "title": "Dashboard",
+                        "icon": "dashboard",  # Supported icon set: https://fonts.google.com/icons
+                        "link": lambda request: reverse_lazy("admin:index"),
+                    },
+                ],
+            },
+        ],
+    },
+    "TABS": [],
+}
+
+def get_environment(request):
+    return "OVM Development" if DEBUG else "OVM Production"
+
+def dashboard_callback(request, context):
+    """
+    Callback to prepare custom variables for index template which is used
+    as dashboard template. It can be overridden in application by creating
+    custom admin/index.html.
+    """
+    context.update({
+        "sample": "Custom dashboard",  # this will be injected into template
+    })
+    return context
 

@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Page Not Found - OVM System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        margin: 0 -15px;
+        padding: 50px 15px;
+    }
+    
+    .error-content {
+        max-width: 600px;
+    }
+    
+    .error-code {
+        font-size: 8rem;
+        font-weight: bold;
+        background: linear-gradient(45deg, #fff, #f0f0f0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        margin-bottom: 0;
+    }
+    
+    .error-message {
+        font-size: 1.5rem;
+        margin: 20px 0;
+        opacity: 0.9;
+    }
+    
+    .error-description {
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+        opacity: 0.8;
+    }
+    
+    .error-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .error-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 12px 24px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        border-radius: 25px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .error-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .floating-icons {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        pointer-events: none;
+    }
+    
+    .floating-icon {
+        position: absolute;
+        color: rgba(255, 255, 255, 0.1);
+        font-size: 2rem;
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    
+    .floating-icon:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+    .floating-icon:nth-child(2) { top: 60%; left: 80%; animation-delay: 2s; }
+    .floating-icon:nth-child(3) { top: 40%; left: 20%; animation-delay: 4s; }
+    .floating-icon:nth-child(4) { top: 80%; left: 60%; animation-delay: 1s; }
+    .floating-icon:nth-child(5) { top: 10%; left: 70%; animation-delay: 3s; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="floating-icons">
+        <i class="fas fa-vote-yea floating-icon"></i>
+        <i class="fas fa-search floating-icon"></i>
+        <i class="fas fa-home floating-icon"></i>
+        <i class="fas fa-question floating-icon"></i>
+        <i class="fas fa-exclamation floating-icon"></i>
+    </div>
+    
+    <div class="error-content">
+        <h1 class="error-code">404</h1>
+        <h2 class="error-message">Page Not Found</h2>
+        <p class="error-description">
+            Oops! It looks like the page you're looking for has wandered off. 
+            Maybe it went to vote in another election, or perhaps it never existed in the first place.
+        </p>
+        
+        <div class="error-actions">
+            <a href="{% url 'index' %}" class="error-btn">
+                <i class="fas fa-home me-2"></i>
+                Go Home
+            </a>
+            <a href="{% url 'dashboard' %}" class="error-btn">
+                <i class="fas fa-tachometer-alt me-2"></i>
+                Dashboard
+            </a>
+            <a href="javascript:history.back()" class="error-btn">
+                <i class="fas fa-arrow-left me-2"></i>
+                Go Back
+            </a>
+        </div>
+        
+        <hr style="margin: 40px 0; border-color: rgba(255, 255, 255, 0.3);">
+        
+        <div style="opacity: 0.8;">
+            <h5>Common pages you might be looking for:</h5>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 20px;">
+                <a href="{% url 'index' %}" style="color: rgba(255, 255, 255, 0.9); text-decoration: none;">
+                    <i class="fas fa-sign-in-alt me-2"></i>Voter Login
+                </a>
+                <a href="/admin/" style="color: rgba(255, 255, 255, 0.9); text-decoration: none;">
+                    <i class="fas fa-cog me-2"></i>Admin Panel
+                </a>
+                <a href="{% url 'dashboard' %}" style="color: rgba(255, 255, 255, 0.9); text-decoration: none;">
+                    <i class="fas fa-poll me-2"></i>Active Elections
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-question-circle me-2"></i>
+                        Need Help?
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p>If you believe this is an error, please try the following:</p>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Check the URL for typos
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Make sure you're logged in if required
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Clear your browser cache and try again
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Contact system administrator if the problem persists
+                        </li>
+                    </ul>
+                    
+                    <hr>
+                    
+                    <div class="text-center">
+                        <p class="text-muted mb-3">Or search for what you're looking for:</p>
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Search elections, candidates..." id="searchInput">
+                            <button class="btn btn-primary" type="button" onclick="performSearch()">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function performSearch() {
+    const query = document.getElementById('searchInput').value.trim();
+    if (query) {
+        // In a real implementation, this would redirect to a search results page
+        alert(`Searching for: "${query}"\n\nThis would redirect to search results.`);
+    } else {
+        alert('Please enter a search term.');
+    }
+}
+
+// Add enter key support for search
+document.getElementById('searchInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        performSearch();
+    }
+});
+
+// Add some fun interaction
+document.addEventListener('DOMContentLoaded', function() {
+    const errorCode = document.querySelector('.error-code');
+    
+    errorCode.addEventListener('mouseenter', function() {
+        this.style.transform = 'scale(1.1) rotate(5deg)';
+    });
+    
+    errorCode.addEventListener('mouseleave', function() {
+        this.style.transform = 'scale(1) rotate(0deg)';
+    });
+});
+</script>
+{% endblock %}
