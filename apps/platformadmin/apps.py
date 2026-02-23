@@ -1,0 +1,7 @@
+from django.apps import AppConfig
+
+
+class PlatformAdminConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'platformadmin'
+    verbose_name = 'Platform Admin'

@@ -1,0 +1,92 @@
+{% extends 'platformadmindashboard/base.html' %}
+{% block title %}{{ action }} Election — OVM Admin{% endblock %}
+{% block page_title %}{{ action }} Election{% endblock %}
+{% block active_elections %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{% url 'platformadmin:election_list' %}" class="btn btn-ghost btn-sm"><i class="fas fa-arrow-left"></i></a>
+    <h4 class="mb-0">{{ action }} Election</h4>
+</div>
+
+<div class="row">
+    <div class="col-12 col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {% if errors.__all__%}<div class="alert alert-danger mb-3" style="font-size:.83rem;">{{
+                        errors.__all__ }}</div>{% endif %}
+
+                    <div class="mb-3">
+                        <label class="form-label">Title *</label>
+                        <input type="text" name="title" class="form-control {% if errors.title%}is-invalid{% endif %}"
+                            value="{{ data.title|default:'' }}" placeholder="Election title" required>
+                        {% if errors.title%}<div class="invalid-feedback">{{ errors.title }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description *</label>
+                        <textarea name="description"
+                            class="form-control {% if errors.description%}is-invalid{% endif %}" rows="4"
+                            placeholder="Describe this election" required>{{ data.description|default:'' }}</textarea>
+                        {% if errors.description%}<div class="invalid-feedback">{{ errors.description }}</div>{% endif
+                        %}
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Election Type *</label>
+                            <select name="election_type"
+                                class="form-select {% if errors.election_type%}is-invalid{% endif %}" required>
+                                <option value="">Select type</option>
+                                {% for val, label in election_types %}
+                                <option value="{{ val }}" {% if data.election_type  ==  val%}selected{% endif %}>{{ label
+                                    }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if errors.election_type%}<div class="invalid-feedback">{{ errors.election_type }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status *</label>
+                            <select name="status" class="form-select {% if errors.status%}is-invalid{% endif %}"
+                                required>
+                                {% for val, label in status_choices %}
+                                <option value="{{ val }}" {% if data.status  ==  val%}selected{% endif %}>{{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if errors.status%}<div class="invalid-feedback">{{ errors.status }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Start Date &amp; Time *</label>
+                            <input type="datetime-local" name="start_date"
+                                class="form-control {% if errors.start_date%}is-invalid{% endif %}"
+                                value="{{ data.start_date|default:'' }}" required>
+                            {% if errors.start_date%}<div class="invalid-feedback">{{ errors.start_date }}</div>{%
+                            endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">End Date &amp; Time *</label>
+                            <input type="datetime-local" name="end_date"
+                                class="form-control {% if errors.end_date%}is-invalid{% endif %}"
+                                value="{{ data.end_date|default:'' }}" required>
+                            {% if errors.end_date%}<div class="invalid-feedback">{{ errors.end_date }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3">
+                        <button type="submit" class="btn btn-accent"><i class="fas fa-save me-2"></i>{{ action }}
+                            Election</button>
+                        <a href="{% url 'platformadmin:election_list' %}" class="btn btn-ghost">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

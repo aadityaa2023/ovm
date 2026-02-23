@@ -1,0 +1,162 @@
+{% extends 'platformadmindashboard/base.html' %}
+{% block title %}{{ action }} Voter — OVM Admin{% endblock %}
+{% block page_title %}{{ action }} Voter{% endblock %}
+{% block active_voters %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{% url 'platformadmin:voter_list' %}" class="btn btn-ghost btn-sm"><i class="fas fa-arrow-left"></i></a>
+    <h4 class="mb-0">{{ action }} Voter</h4>
+</div>
+
+<div class="row">
+    <div class="col-12 col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% if errors.__all__%}
+                    <div class="alert alert-danger mb-3" style="font-size:.83rem;">{{ errors.__all__ }}</div>
+                    {% endif %}
+
+                    {% if action   ==   'Create'%}
+                    <div class="mb-3">
+                        <label class="form-label">Aadhaar Number *</label>
+                        <input type="text" name="aadhaar_number"
+                            class="form-control {% if errors.aadhaar_number%}is-invalid{% endif %}"
+                            value="{{ data.aadhaar_number|default:'' }}" maxlength="12" placeholder="12-digit Aadhaar"
+                            required>
+                        {% if errors.aadhaar_number%}<div class="invalid-feedback">{{ errors.aadhaar_number }}</div>{%
+                        endif %}
+                    </div>
+                    {% endif %}
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" name="name"
+                                class="form-control {% if errors.name%}is-invalid{% endif %}"
+                                value="{{ data.name|default:'' }}" placeholder="Voter full name" required>
+                            {% if errors.name%}<div class="invalid-feedback">{{ errors.name }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Date of Birth *</label>
+                            <input type="date" name="date_of_birth"
+                                class="form-control {% if errors.date_of_birth%}is-invalid{% endif %}"
+                                value="{{ data.date_of_birth|default:'' }}" required>
+                            {% if errors.date_of_birth%}<div class="invalid-feedback">{{ errors.date_of_birth }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Mobile Number *</label>
+                            <input type="text" name="mobile_number"
+                                class="form-control {% if errors.mobile_number%}is-invalid{% endif %}"
+                                value="{{ data.mobile_number|default:'' }}" maxlength="10" placeholder="10-digit mobile"
+                                required>
+                            {% if errors.mobile_number%}<div class="invalid-feedback">{{ errors.mobile_number }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" value="{{ data.email|default:'' }}"
+                                placeholder="Optional">
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">State *</label>
+                            <select name="state" class="form-select {% if errors.state%}is-invalid{% endif %}"
+                                id="stateSelect" required>
+                                <option value="">Select State</option>
+                                {% for state in states %}
+                                <option value="{{ state.id }}" {% if                                    data.state|stringformat:"s"  ==  state.id|stringformat:"s"%}selected{% endif %}>
+                                    {{ state.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if errors.state%}<div class="invalid-feedback">{{ errors.state }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Constituency *</label>
+                            <select name="constituency"
+                                class="form-select {% if errors.constituency%}is-invalid{% endif %}"
+                                id="constituencySelect" required>
+                                <option value="">Select Constituency</option>
+                                {% for c in constituencies %}
+                                <option value="{{ c.id }}" {% if                                    data.constituency|stringformat:"s"  ==  c.id|stringformat:"s"%}selected{% endif %}>
+                                    {{ c.name }} ({{ c.state.code }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if errors.constituency%}<div class="invalid-feedback">{{ errors.constituency }}</div>{%
+                            endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Address *</label>
+                        <textarea name="address" class="form-control {% if errors.address%}is-invalid{% endif %}"
+                            rows="3" placeholder="Full address" required>{{ data.address|default:'' }}</textarea>
+                        {% if errors.address%}<div class="invalid-feedback">{{ errors.address }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Face Photo</label>
+                        <input type="file" name="face_image" class="form-control" accept="image/*">
+                        {% if voter and voter.face_image%}
+                        <div class="mt-2">
+                            <img src="{{ voter.face_image.url }}"
+                                style="height:60px;border-radius:8px;object-fit:cover;" alt="Current photo">
+                            <small class="text-muted ms-2">Current photo</small>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input type="checkbox" name="is_verified" class="form-check-input" id="isVerified" {% if                                data.is_verified%}checked{% endif %}>
+                            <label class="form-check-label" for="isVerified">Mark as Verified</label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3">
+                        <button type="submit" class="btn btn-accent">
+                            <i class="fas fa-save me-2"></i>{{ action }} Voter
+                        </button>
+                        <a href="{% url 'platformadmin:voter_list' %}" class="btn btn-ghost">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    const stateSelect = document.getElementById('stateSelect');
+    const constituencySelect = document.getElementById('constituencySelect');
+    const currentConstituency = "{{ data.constituency|default:'' }}";
+
+    stateSelect.addEventListener('change', function () {
+        const stateId = this.value;
+        if (!stateId) { constituencySelect.innerHTML = '<option value="">Select Constituency</option>'; return; }
+        fetch(`/platform-admin/api/constituencies/${stateId}/`)
+            .then(r => r.json())
+            .then(data => {
+                constituencySelect.innerHTML = '<option value="">Select Constituency</option>';
+                data.constituencies.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = `${c.name} (${c.constituency_code})`;
+                    if (String(c.id) === currentConstituency) opt.selected = true;
+                    constituencySelect.appendChild(opt);
+                });
+            });
+    });
+</script>
+{% endblock %}
+{% endblock %}

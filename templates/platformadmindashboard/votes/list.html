@@ -1,0 +1,83 @@
+{% extends 'platformadmindashboard/base.html' %}
+{% block title %}Vote Log — OVM Admin{% endblock %}
+{% block page_title %}Vote Log{% endblock %}
+{% block active_votes %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h4 class="mb-0">Vote Log</h4>
+        <small style="color:#8899b4;">{{ total }} total votes — read only</small>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body pb-0">
+        <form method="get" class="filter-bar">
+            <input type="text" name="q" class="form-control" style="max-width:280px;"
+                placeholder="Aadhaar / Blockchain hash..." value="{{ q }}">
+            <select name="election" class="form-select" style="max-width:220px;">
+                <option value="">All Elections</option>
+                {% for e in elections %}
+                <option value="{{ e.id }}" {% if election_filter  ==  e.id|stringformat:"s"%}selected{% endif %}>{{
+                    e.title|truncatechars:30 }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-accent">Filter</button>
+            {% if q or election_filter%}<a href="{% url 'platformadmin:vote_list' %}" class="btn btn-ghost">Clear</a>{%
+            endif %}
+        </form>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Voter (Aadhaar)</th>
+                    <th>Election</th>
+                    <th>Candidate</th>
+                    <th>Blockchain Hash</th>
+                    <th>Cast At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in votes %}
+                <tr>
+                    <td><span style="font-family:monospace;font-size:.8rem;">{{ v.voter.aadhaar_number }}</span></td>
+                    <td style="font-size:.82rem;">{{ v.election.title|truncatechars:30 }}</td>
+                    <td style="font-size:.82rem;">{{ v.candidate.name }}</td>
+                    <td>
+                        <span style="font-family:monospace;font-size:.72rem;color:#8899b4;"
+                            title="{{ v.blockchain_hash }}">
+                            {{ v.blockchain_hash|truncatechars:22 }}
+                        </span>
+                    </td>
+                    <td style="font-size:.75rem;color:#8899b4;">{{ v.cast_at|date:"M d, Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-5" style="color:#8899b4;">No votes recorded yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if votes.has_other_pages%}
+    <div class="card-body pt-3">
+        <nav>
+            <ul class="pagination pagination-sm mb-0 justify-content-center">
+                {% if votes.has_previous%}<li class="page-item"><a class="page-link"
+                        href="?page={{ votes.previous_page_number }}&q={{ q }}&election={{ election_filter }}">&laquo;</a>
+                </li>{% endif %}
+                {% for num in votes.paginator.page_range %}
+                <li class="page-item {% if num   ==   votes.number%}active{% endif %}"><a class="page-link"
+                        href="?page={{ num }}&q={{ q }}&election={{ election_filter }}">{{ num }}</a></li>
+                {% endfor %}
+                {% if votes.has_next%}<li class="page-item"><a class="page-link"
+                        href="?page={{ votes.next_page_number }}&q={{ q }}&election={{ election_filter }}">&raquo;</a>
+                </li>{% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

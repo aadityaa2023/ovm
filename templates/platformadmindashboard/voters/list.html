@@ -1,0 +1,129 @@
+{% extends 'platformadmindashboard/base.html' %}
+{% block title %}Voters — OVM Admin{% endblock %}
+{% block page_title %}Voters{% endblock %}
+{% block active_voters %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h4 class="mb-0">Voters</h4>
+        <small style="color:#8899b4;">{{ total }} total voters</small>
+    </div>
+    <a href="{% url 'platformadmin:voter_create' %}" class="btn btn-accent">
+        <i class="fas fa-plus me-2"></i>Add Voter
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body pb-0">
+        <form method="get" class="filter-bar">
+            <input type="text" name="q" class="form-control" style="max-width:280px;"
+                placeholder="Search name / Aadhaar..." value="{{ q }}">
+            <select name="verified" class="form-select" style="max-width:160px;">
+                <option value="">All Verified</option>
+                <option value="1" {% if filter_verified  ==  '1'%}selected{% endif %}>Verified</option>
+                <option value="0" {% if filter_verified  ==  '0'%}selected{% endif %}>Unverified</option>
+            </select>
+            <select name="voted" class="form-select" style="max-width:160px;">
+                <option value="">All Voted</option>
+                <option value="1" {% if filter_voted  ==  '1'%}selected{% endif %}>Has Voted</option>
+                <option value="0" {% if filter_voted  ==  '0'%}selected{% endif %}>Not Voted</option>
+            </select>
+            <button type="submit" class="btn btn-accent">Filter</button>
+            {% if q or filter_verified or filter_voted%}
+            <a href="{% url 'platformadmin:voter_list' %}" class="btn btn-ghost">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Aadhaar</th>
+                    <th>Constituency</th>
+                    <th>Verified</th>
+                    <th>Voted</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for voter in voters %}
+                <tr>
+                    <td>
+                        <a href="{% url 'platformadmin:voter_detail' voter.id %}"
+                            style="color:#e2e8f0;font-weight:500;text-decoration:none;">{{ voter.name }}</a>
+                        {% if voter.mobile_number%}<div style="font-size:.72rem;color:#8899b4;">{{ voter.mobile_number
+                            }}</div>{% endif %}
+                    </td>
+                    <td><span style="font-family:monospace;font-size:.82rem;">{{ voter.aadhaar_number }}</span></td>
+                    <td><span style="font-size:.82rem;">{{ voter.constituency.name }}</span></td>
+                    <td>
+                        {% if voter.is_verified%}
+                        <span class="status-badge bg-success bg-opacity-10 text-success"><i
+                                class="fas fa-check me-1"></i>Yes</span>
+                        {% else %}
+                        <span class="status-badge bg-warning bg-opacity-10 text-warning">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if voter.has_voted%}
+                        <span class="status-badge bg-info bg-opacity-10 text-info">Voted</span>
+                        {% else %}
+                        <span style="color:#8899b4;font-size:.78rem;">—</span>
+                        {% endif %}
+                    </td>
+                    <td><span style="font-size:.75rem;color:#8899b4;">{{ voter.created_at|date:"M d, Y" }}</span></td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'platformadmin:voter_edit' voter.id %}" class="btn btn-ghost btn-sm"
+                                title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form method="post" action="{% url 'platformadmin:voter_delete' voter.id %}"
+                                onsubmit="return confirm('Delete voter {{ voter.name }}?')">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm"
+                                    style="background:rgba(239,68,68,.1);color:#ef4444;border:0;" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-5" style="color:#8899b4;">No voters found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if voters.has_other_pages%}
+    <div class="card-body pt-3">
+        <nav>
+            <ul class="pagination pagination-sm mb-0 justify-content-center flex-wrap">
+                {% if voters.has_previous%}
+                <li class="page-item"><a class="page-link"
+                        href="?page={{ voters.previous_page_number }}&q={{ q }}&verified={{ filter_verified }}&voted={{ filter_voted }}">&laquo;</a>
+                </li>
+                {% endif %}
+                {% for num in voters.paginator.page_range %}
+                <li class="page-item {% if num   ==   voters.number%}active{% endif %}">
+                    <a class="page-link"
+                        href="?page={{ num }}&q={{ q }}&verified={{ filter_verified }}&voted={{ filter_voted }}">{{ num
+                        }}</a>
+                </li>
+                {% endfor %}
+                {% if voters.has_next%}
+                <li class="page-item"><a class="page-link"
+                        href="?page={{ voters.next_page_number }}&q={{ q }}&verified={{ filter_verified }}&voted={{ filter_voted }}">&raquo;</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

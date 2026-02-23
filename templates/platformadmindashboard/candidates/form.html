@@ -1,0 +1,101 @@
+{% extends 'platformadmindashboard/base.html' %}
+{% block title %}{{ action }} Candidate — OVM Admin{% endblock %}
+{% block page_title %}{{ action }} Candidate{% endblock %}
+{% block active_candidates %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{% url 'platformadmin:candidate_list' %}" class="btn btn-ghost btn-sm"><i
+            class="fas fa-arrow-left"></i></a>
+    <h4 class="mb-0">{{ action }} Candidate</h4>
+</div>
+<div class="row">
+    <div class="col-12 col-lg-7">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% if errors.__all__%}<div class="alert alert-danger mb-3" style="font-size:.83rem;">{{
+                        errors.__all__ }}</div>{% endif %}
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" name="name"
+                                class="form-control {% if errors.name%}is-invalid{% endif %}"
+                                value="{{ data.name|default:'' }}" placeholder="Candidate name" required>
+                            {% if errors.name%}<div class="invalid-feedback">{{ errors.name }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Party Name *</label>
+                            <input type="text" name="party_name"
+                                class="form-control {% if errors.party_name%}is-invalid{% endif %}"
+                                value="{{ data.party_name|default:'' }}" placeholder="Party name" required>
+                            {% if errors.party_name%}<div class="invalid-feedback">{{ errors.party_name }}</div>{%
+                            endif %}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Election *</label>
+                            <select name="election" class="form-select {% if errors.election%}is-invalid{% endif %}"
+                                required>
+                                <option value="">Select Election</option>
+                                {% for e in elections %}
+                                <option value="{{ e.id }}" {% if data.election|stringformat:"s"  ==  e.id|stringformat:"s"%}selected{% endif %}>{{ e.title }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if errors.election%}<div class="invalid-feedback">{{ errors.election }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Constituency *</label>
+                            <select name="constituency"
+                                class="form-select {% if errors.constituency%}is-invalid{% endif %}" required>
+                                <option value="">Select Constituency</option>
+                                {% for c in constituencies %}
+                                <option value="{{ c.id }}" {% if                                    data.constituency|stringformat:"s"  ==  c.id|stringformat:"s"%}selected{% endif %}>{{
+                                    c.name }} ({{ c.state.code }})</option>
+                                {% endfor %}
+                            </select>
+                            {% if errors.constituency%}<div class="invalid-feedback">{{ errors.constituency }}</div>{%
+                            endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Manifesto</label>
+                        <textarea name="manifesto" class="form-control" rows="4"
+                            placeholder="Candidate manifesto (optional)">{{ data.manifesto|default:'' }}</textarea>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Candidate Photo</label>
+                            <input type="file" name="photo" class="form-control" accept="image/*">
+                            {% if candidate and candidate.photo%}
+                            <div class="mt-2"><img src="{{ candidate.photo.url }}"
+                                    style="height:50px;border-radius:6px;object-fit:cover;" alt=""></div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Party Symbol</label>
+                            <input type="file" name="party_symbol" class="form-control" accept="image/*">
+                            {% if candidate and candidate.party_symbol%}
+                            <div class="mt-2"><img src="{{ candidate.party_symbol.url }}"
+                                    style="height:50px;border-radius:6px;object-fit:cover;" alt=""></div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3">
+                        <button type="submit" class="btn btn-accent"><i class="fas fa-save me-2"></i>{{ action }}
+                            Candidate</button>
+                        <a href="{% url 'platformadmin:candidate_list' %}" class="btn btn-ghost">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

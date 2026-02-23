@@ -20,6 +20,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('', include('voting.urls')),
+    path('platform-admin/', include('platformadmin.urls')),
 ]
 
 # Serve media files in development
