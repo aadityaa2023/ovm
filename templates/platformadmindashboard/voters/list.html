@@ -7,7 +7,7 @@
 <div class="d-flex align-items-center justify-content-between mb-4">
     <div>
         <h4 class="mb-0">Voters</h4>
-        <small style="color:#8899b4;">{{ total }} total voters</small>
+        <small style="color:#64748b;">{{ total }} total voters</small>
     </div>
     <a href="{% url 'platformadmin:voter_create' %}" class="btn btn-accent">
         <i class="fas fa-plus me-2"></i>Add Voter
@@ -54,7 +54,7 @@
                     <td>
                         <a href="{% url 'platformadmin:voter_detail' voter.id %}"
                             style="color:#e2e8f0;font-weight:500;text-decoration:none;">{{ voter.name }}</a>
-                        {% if voter.mobile_number%}<div style="font-size:.72rem;color:#8899b4;">{{ voter.mobile_number
+                        {% if voter.mobile_number%}<div style="font-size:.72rem;color:#64748b;">{{ voter.mobile_number
                             }}</div>{% endif %}
                     </td>
                     <td><span style="font-family:monospace;font-size:.82rem;">{{ voter.aadhaar_number }}</span></td>
@@ -71,10 +71,10 @@
                         {% if voter.has_voted%}
                         <span class="status-badge bg-info bg-opacity-10 text-info">Voted</span>
                         {% else %}
-                        <span style="color:#8899b4;font-size:.78rem;">—</span>
+                        <span style="color:#64748b;font-size:.78rem;">—</span>
                         {% endif %}
                     </td>
-                    <td><span style="font-size:.75rem;color:#8899b4;">{{ voter.created_at|date:"M d, Y" }}</span></td>
+                    <td><span style="font-size:.75rem;color:#64748b;">{{ voter.created_at|date:"M d, Y" }}</span></td>
                     <td>
                         <div class="d-flex gap-2">
                             <a href="{% url 'platformadmin:voter_edit' voter.id %}" class="btn btn-ghost btn-sm"
@@ -94,7 +94,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="7" class="text-center py-5" style="color:#8899b4;">No voters found.</td>
+                    <td colspan="7" class="text-center py-5" style="color:#64748b;">No voters found.</td>
                 </tr>
                 {% endfor %}
             </tbody>

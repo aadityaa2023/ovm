@@ -1,183 +1,246 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Login - OVM System{% endblock %}
+{% block title %}Login — OVM Secure Voter Portal{% endblock %}
 
 {% block extra_css %}
 <style>
-    .hero-section {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 80px 0;
-    }
-    
-    .login-card {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        backdrop-filter: blur(10px);
-    }
-    
-    .election-card {
-        transition: transform 0.3s ease;
-    }
-    
-    .election-card:hover {
-        transform: translateY(-5px);
-    }
-    
-    .webcam-container {
+    /* ── Hero Login Layout ── */
+    .login-page {
+        min-height: calc(100vh - 64px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
         position: relative;
-        max-width: 320px;
-        margin: 0 auto;
     }
-    
-    #webcam {
+
+    .login-page::before {
+        content: '';
+        position: fixed;
+        top: -150px; left: -100px;
+        width: 600px; height: 600px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(99,102,241,.2) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .page-grid {
+        display: grid;
+        grid-template-columns: 1fr 420px;
+        gap: 56px;
+        max-width: 1000px;
         width: 100%;
-        border-radius: 8px;
+        align-items: start;
     }
-    
-    .capture-btn {
-        position: absolute;
-        bottom: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 10;
+
+    /* ── Left Info Panel ── */
+    .info-panel h1 {
+        font-size: 42px; font-weight: 800; margin-bottom: 16px;
+        background: linear-gradient(to right, var(--accent), #818cf8);
+        background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .info-panel p { color: var(--text-muted); line-height: 1.7; margin-bottom: 28px; font-size: 16px; }
+    .tricolor-wave {
+        font-size: 22px; font-weight: 800; letter-spacing: 2px;
+        background: linear-gradient(to right, #FF9933, #ffffff, #138808);
+        background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        margin-bottom: 28px;
+    }
+    .feature-pills { display: flex; flex-wrap: wrap; gap: 12px; }
+    .feature-pill {
+        background: var(--card-bg); border: 1px solid var(--border-color);
+        padding: 10px 18px; border-radius: 14px; font-size: 13px; font-weight: 600;
+        display: flex; align-items: center; gap: 8px; color: var(--text-color);
+    }
+    .feature-pill i { color: var(--accent); }
+
+    /* ── Login Card ── */
+    .login-card {
+        background: var(--card-gradient);
+        border: 1px solid var(--border-color);
+        border-radius: 28px;
+        padding: 40px 36px;
+        box-shadow: var(--card-shadow);
+        position: relative;
+    }
+
+    .icon-box {
+        width: 64px; height: 64px; margin: 0 auto 20px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, var(--accent), #818cf8);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 28px; color: #fff;
+        box-shadow: 0 10px 20px rgba(99,102,241,0.35);
+    }
+
+    .login-card h2 {
+        text-align: center; font-size: 22px; font-weight: 800;
+        color: var(--text-color); margin-bottom: 4px;
+    }
+    .login-card .sub-label {
+        text-align: center; font-size: 12px; color: var(--accent);
+        text-transform: uppercase; letter-spacing: 2px; font-weight: 700; margin-bottom: 28px;
+    }
+
+    .ovm-input-wrap {
+        display: flex; align-items: center; gap: 10px;
+        background: var(--input-bg); border: 1px solid var(--border-color);
+        padding: 13px 16px; border-radius: 14px; margin-bottom: 14px;
+    }
+    .ovm-input-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,0.2); }
+    .ovm-input-wrap i { color: var(--text-muted); width: 18px; flex-shrink: 0; }
+    .ovm-input-wrap input, .ovm-input-wrap select {
+        flex: 1; background: none; border: none; outline: none;
+        color: var(--text-color); font-size: 15px; font-family: inherit;
+    }
+    .ovm-input-wrap select option { background: var(--card-bg); }
+
+    /* ── Webcam ── */
+    .webcam-box {
+        background: var(--input-bg); border: 1px solid var(--border-color);
+        border-radius: 14px; overflow: hidden; position: relative; margin-bottom: 14px;
+    }
+    .webcam-box video, .webcam-box img { width: 100%; display: block; border-radius: 14px; }
+    .webcam-overlay {
+        position: absolute; bottom: 0; left: 0; right: 0;
+        padding: 10px; text-align: center;
+        background: linear-gradient(transparent, rgba(0,0,0,0.6));
+    }
+
+    /* ── Buttons ── */
+    .btn-main {
+        width: 100%; padding: 15px; border: none; border-radius: 14px;
+        background: var(--accent); color: #fff; font-size: 16px; font-weight: 700;
+        cursor: pointer; margin-top: 6px;
+        box-shadow: 0 4px 15px rgba(99,102,241,0.35);
+        transition: background 0.2s, transform 0.15s;
+    }
+    .btn-main:hover { background: var(--accent-hover); transform: translateY(-2px); }
+    .btn-main:disabled { background: #4b5563; cursor: not-allowed; transform: none; }
+
+    .btn-cam {
+        padding: 8px 18px; border-radius: 10px; border: none;
+        background: var(--accent); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer;
+    }
+    .btn-cam-secondary {
+        padding: 8px 18px; border-radius: 10px; border: 1px solid var(--border-color);
+        background: transparent; color: var(--text-muted); font-size: 13px; cursor: pointer;
+    }
+
+    /* ── Active Elections Card ── */
+    .elections-panel { margin-top: 32px; }
+    .elections-panel h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: var(--text-color); }
+    .elec-item {
+        display: flex; align-items: center; justify-content: space-between;
+        background: var(--card-bg); border: 1px solid var(--border-color);
+        border-radius: 14px; padding: 16px 20px; margin-bottom: 12px;
+    }
+    .elec-item h6 { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-color); }
+    .elec-item small { color: var(--text-muted); font-size: 12px; }
+    .live-badge {
+        display: flex; align-items: center; gap: 6px;
+        background: rgba(34,197,94,0.15); color: #22c55e;
+        border: 1px solid rgba(34,197,94,0.3);
+        padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
+    }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+    .no-elections {
+        text-align: center; padding: 32px; border-radius: 14px;
+        background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-muted);
+    }
+    .no-elections i { font-size: 32px; margin-bottom: 12px; display: block; }
+
+    @media (max-width: 768px) {
+        .page-grid { grid-template-columns: 1fr; }
+        .info-panel { display: none; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero-section text-center">
-    <div class="container">
-        <h1 class="display-4 mb-4">
-            <i class="fas fa-vote-yea"></i>
-            Secure Online Voting System
-        </h1>
-        <p class="lead">Democratic, Transparent, and Blockchain-Secured Voting</p>
-    </div>
-</section>
+<div class="login-page">
+    <div class="page-grid">
 
-<div class="container my-5">
-    <div class="row">
-        <!-- Login Section -->
-        <div class="col-lg-6 mb-4">
-            <div class="card login-card">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">
-                        <i class="fas fa-sign-in-alt me-2"></i>
-                        Voter Login
-                    </h4>
-                </div>
-                <div class="card-body p-4">
-                    <form id="loginForm">
-                        <div class="mb-3">
-                            <label for="aadhaarinput" class="form-label">
-                                <i class="fas fa-id-card me-2"></i>
-                                Aadhaar Number
-                            </label>
-                            <input type="text" class="form-control form-control-lg" id="aadhaarinput" 
-                                   placeholder="Enter 12-digit Aadhaar number" maxlength="12" required>
-                            <div class="form-text">Enter your 12-digit Aadhaar number</div>
+        <!-- ── Left Info Panel ── -->
+        <div class="info-panel">
+            <div class="tricolor-wave">मतदान</div>
+            <h1>Blockchain-Secured<br>Voting Platform</h1>
+            <p>A next-generation digital voting system with AI-powered biometric verification and immutable blockchain records — ensuring every legitimate vote counts.</p>
+            <div class="feature-pills">
+                <div class="feature-pill"><i class="fas fa-shield-halved"></i> AI Face Verification</div>
+                <div class="feature-pill"><i class="fas fa-link"></i> Blockchain Secured</div>
+                <div class="feature-pill"><i class="fas fa-bolt-lightning"></i> Real-time Results</div>
+                <div class="feature-pill"><i class="fas fa-lock"></i> Anonymous Votes</div>
+            </div>
+
+            <!-- Active Elections panel (on info side) -->
+            <div class="elections-panel">
+                <h3><i class="fas fa-bolt me-2" style="color:var(--accent)"></i>Live Elections</h3>
+                {% if active_elections %}
+                    {% for election in active_elections %}
+                    <div class="elec-item">
+                        <div>
+                            <h6>{{ election.title }}</h6>
+                            <small><i class="fas fa-calendar me-1"></i>Ends {{ election.end_date|date:"M d, Y" }}</small>
                         </div>
-                        
-                        <!-- Face Verification Section -->
-                        <div class="mb-3">
-                            <label class="form-label">
-                                <i class="fas fa-camera me-2"></i>
-                                Face Verification
-                            </label>
-                            <div class="webcam-container mb-3">
-                                <video id="webcam" autoplay muted></video>
-                                <button type="button" class="btn btn-success capture-btn" id="captureBtn">
-                                    <i class="fas fa-camera"></i> Capture
-                                </button>
-                            </div>
-                            <canvas id="canvas" style="display: none;"></canvas>
-                            <div id="capturedImage" style="display: none;">
-                                <img id="capturedImg" class="img-fluid rounded" alt="Captured Image">
-                                <button type="button" class="btn btn-sm btn-secondary mt-2" id="retakeBtn">
-                                    <i class="fas fa-redo"></i> Retake
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary btn-lg w-100" id="loginBtn">
-                            <i class="fas fa-key me-2"></i>
-                            Verify & Login
-                        </button>
-                    </form>
-                    
-                    <!-- Login Status -->
-                    <div id="loginStatus" class="mt-3"></div>
-                </div>
+                        <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-elections">
+                        <i class="fas fa-inbox"></i>
+                        No active elections right now
+                    </div>
+                {% endif %}
             </div>
         </div>
-        
-        <!-- Active Elections Section -->
-        <div class="col-lg-6 mb-4">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h4 class="mb-0">
-                        <i class="fas fa-poll me-2"></i>
-                        Active Elections
-                    </h4>
+
+        <!-- ── Login Card ── -->
+        <div class="login-card">
+            <div class="icon-box"><i class="fas fa-fingerprint"></i></div>
+            <h2>Voter Login</h2>
+            <div class="sub-label">Secure Identity Verification</div>
+
+            <form id="loginForm">
+                <div class="ovm-input-wrap">
+                    <i class="fas fa-id-card"></i>
+                    <input type="text" id="aadhaarinput" placeholder="12-digit Aadhaar Number" maxlength="12" required>
                 </div>
-                <div class="card-body">
-                    {% if active_elections %}
-                        {% for election in active_elections %}
-                            <div class="card election-card mb-3">
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ election.title }}</h5>
-                                    <p class="card-text">{{ election.description|truncatewords:20 }}</p>
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <small class="text-muted">
-                                                <i class="fas fa-calendar-alt me-1"></i>
-                                                {{ election.start_date|date:"M d, Y H:i" }}
-                                            </small>
-                                        </div>
-                                        <div class="col-sm-6 text-end">
-                                            <span class="badge bg-success">
-                                                <i class="fas fa-circle me-1"></i>LIVE
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="text-center py-4">
-                            <i class="fas fa-ballot-check fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">No active elections at the moment</p>
+
+                <!-- Camera Section -->
+                <div style="margin-bottom: 14px;">
+                    <div class="webcam-box" id="webcamBox">
+                        <video id="webcam" autoplay muted style="height:200px; object-fit:cover;"></video>
+                        <div class="webcam-overlay">
+                            <button type="button" class="btn-cam" id="captureBtn">
+                                <i class="fas fa-camera me-1"></i> Capture Face
+                            </button>
                         </div>
-                    {% endif %}
+                    </div>
+                    <canvas id="canvas" style="display:none;"></canvas>
+                    <div id="capturedImageBox" style="display:none;">
+                        <div class="webcam-box">
+                            <img id="capturedImg" alt="Face captured" style="height:200px; object-fit:cover;">
+                        </div>
+                        <div style="margin-top:8px; text-align:center;">
+                            <button type="button" class="btn-cam-secondary" id="retakeBtn">
+                                <i class="fas fa-redo me-1"></i> Retake
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
+
+                <button type="submit" class="btn-main" id="loginBtn">
+                    <i class="fas fa-key me-2"></i>Verify & Login
+                </button>
+            </form>
+
+            <div id="loginStatus" style="margin-top:14px;"></div>
         </div>
-    </div>
-    
-    <!-- Features Section -->
-    <div class="row mt-5">
-        <div class="col-12">
-            <h2 class="text-center mb-5">Why Choose Our Voting System?</h2>
-        </div>
-        <div class="col-md-4 text-center mb-4">
-            <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
-            <h5>Blockchain Security</h5>
-            <p>Every vote is secured on blockchain technology, ensuring immutability and transparency.</p>
-        </div>
-        <div class="col-md-4 text-center mb-4">
-            <i class="fas fa-user-check fa-3x text-success mb-3"></i>
-            <h5>Biometric Verification</h5>
-            <p>Advanced face recognition and liveness detection prevent fraud and ensure authentic voting.</p>
-        </div>
-        <div class="col-md-4 text-center mb-4">
-            <i class="fas fa-mobile-alt fa-3x text-info mb-3"></i>
-            <h5>Accessible Anywhere</h5>
-            <p>Vote securely from anywhere using any device with internet connectivity.</p>
-        </div>
+
     </div>
 </div>
 {% endblock %}
@@ -187,104 +250,75 @@
 $(document).ready(function() {
     let webcamStream = null;
     let capturedImageData = null;
-    
-    // Initialize webcam
+
     function initializeWebcam() {
-        navigator.mediaDevices.getUserMedia({ 
-            video: { width: 320, height: 240 } 
-        })
+        navigator.mediaDevices.getUserMedia({ video: { width: 400, height: 300 } })
         .then(function(stream) {
             webcamStream = stream;
             document.getElementById('webcam').srcObject = stream;
         })
-        .catch(function(error) {
-            console.error('Error accessing webcam:', error);
-            $('#loginStatus').html('<div class="alert alert-warning">Unable to access camera. Please check permissions.</div>');
+        .catch(function() {
+            showStatus('warning', 'Camera unavailable. Please check permissions.');
         });
     }
-    
-    // Capture image
+
+    function showStatus(type, msg) {
+        const icons = { success: 'check-circle', error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle' };
+        $('#loginStatus').html(`<div class="ovm-alert ${type}"><i class="fas fa-${icons[type] || 'info-circle'}"></i>${msg}</div>`);
+    }
+
     $('#captureBtn').click(function() {
         const video = document.getElementById('webcam');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        
+        canvas.width = video.videoWidth || 400;
+        canvas.height = video.videoHeight || 300;
         ctx.drawImage(video, 0, 0);
         capturedImageData = canvas.toDataURL('image/jpeg', 0.8);
-        
-        // Display captured image
         $('#capturedImg').attr('src', capturedImageData);
-        $('#capturedImage').show();
-        $('.webcam-container').hide();
+        $('#webcamBox').hide();
+        $('#capturedImageBox').show();
+        showStatus('success', 'Face captured successfully.');
     });
-    
-    // Retake image
+
     $('#retakeBtn').click(function() {
-        $('#capturedImage').hide();
-        $('.webcam-container').show();
+        $('#capturedImageBox').hide();
+        $('#webcamBox').show();
         capturedImageData = null;
+        $('#loginStatus').html('');
     });
-    
-    // Aadhaar number validation
-    $('#aadhaarinput').on('input', function() {
-        this.value = this.value.replace(/\D/g, '');
-    });
-    
-    // Login form submission
+
+    $('#aadhaarinput').on('input', function() { this.value = this.value.replace(/\D/g, ''); });
+
     $('#loginForm').submit(function(e) {
         e.preventDefault();
-        
         const aadhaarNumber = $('#aadhaarinput').val().trim();
-        
-        // Validation
         if (!aadhaarNumber || aadhaarNumber.length !== 12) {
-            $('#loginStatus').html('<div class="alert alert-danger">Please enter a valid 12-digit Aadhaar number.</div>');
-            return;
+            showStatus('error', 'Please enter a valid 12-digit Aadhaar number.'); return;
         }
-        
         if (!capturedImageData) {
-            $('#loginStatus').html('<div class="alert alert-danger">Please capture your face image for verification.</div>');
-            return;
+            showStatus('error', 'Please capture your face image for verification.'); return;
         }
-        
-        // Show loading
         $('#loginBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Verifying...');
-        
-        // Send login request
         $.ajax({
             url: '{% url "api_verify_login" %}',
             method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            data: JSON.stringify({
-                aadhaar_number: aadhaarNumber,
-                face_image: capturedImageData
-            }),
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+            data: JSON.stringify({ aadhaar_number: aadhaarNumber, face_image: capturedImageData }),
             contentType: 'application/json',
             success: function(response) {
                 if (response.success) {
-                    $('#loginStatus').html('<div class="alert alert-success">Login successful! Redirecting...</div>');
-                    setTimeout(function() {
-                        window.location.href = '{% url "dashboard" %}';
-                    }, 1500);
+                    showStatus('success', 'Identity verified! Redirecting...');
+                    setTimeout(() => { window.location.href = '{% url "dashboard" %}'; }, 1200);
                 } else {
-                    $('#loginStatus').html('<div class="alert alert-danger">' + response.message + '</div>');
+                    showStatus('error', response.message || 'Verification failed.');
                 }
             },
-            error: function(xhr, status, error) {
-                $('#loginStatus').html('<div class="alert alert-danger">Login failed. Please try again.</div>');
-            },
-            complete: function() {
-                $('#loginBtn').prop('disabled', false).html('<i class="fas fa-key me-2"></i>Verify & Login');
-            }
+            error: function() { showStatus('error', 'Login failed. Please try again.'); },
+            complete: function() { $('#loginBtn').prop('disabled', false).html('<i class="fas fa-key me-2"></i>Verify & Login'); }
         });
     });
-    
-    // Initialize webcam on page load
+
     initializeWebcam();
 });
 </script>

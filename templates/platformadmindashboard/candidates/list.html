@@ -7,7 +7,7 @@
 <div class="d-flex align-items-center justify-content-between mb-4">
     <div>
         <h4 class="mb-0">Candidates</h4>
-        <small style="color:#8899b4;">{{ total }} total candidates</small>
+        <small style="color:#64748b;">{{ total }} total candidates</small>
     </div>
     <a href="{% url 'platformadmin:candidate_create' %}" class="btn btn-accent">
         <i class="fas fa-plus me-2"></i>Add Candidate
@@ -53,7 +53,7 @@
                                 style="width:30px;height:30px;border-radius:50%;object-fit:cover;" alt="">
                             {% else %}
                             <div
-                                style="width:30px;height:30px;border-radius:50%;background:rgba(99,102,241,.2);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#6366f1;">
+                                style="width:30px;height:30px;border-radius:50%;background:rgba(14,165,233,.15);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#0ea5e9;">
                                 {{ c.name|first|upper }}
                             </div>
                             {% endif %}
@@ -61,8 +61,8 @@
                         </div>
                     </td>
                     <td style="font-size:.82rem;">{{ c.party_name }}</td>
-                    <td style="font-size:.78rem;color:#8899b4;">{{ c.election.title|truncatechars:25 }}</td>
-                    <td style="font-size:.78rem;color:#8899b4;">{{ c.constituency.name }}</td>
+                    <td style="font-size:.78rem;color:#64748b;">{{ c.election.title|truncatechars:25 }}</td>
+                    <td style="font-size:.78rem;color:#64748b;">{{ c.constituency.name }}</td>
                     <td><span class="status-badge bg-primary bg-opacity-10 text-primary">{{ c.vote_count }}</span></td>
                     <td>
                         <div class="d-flex gap-2">
@@ -81,7 +81,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6" class="text-center py-5" style="color:#8899b4;">No candidates found.</td>
+                    <td colspan="6" class="text-center py-5" style="color:#64748b;">No candidates found.</td>
                 </tr>
                 {% endfor %}
             </tbody>

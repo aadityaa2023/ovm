@@ -29,7 +29,7 @@
                 <tr>
                     <td style="font-weight:500;">{{ a.username }}</td>
                     <td style="font-size:.85rem;">{{ a.full_name }}</td>
-                    <td style="font-size:.82rem;color:#8899b4;">{{ a.email }}</td>
+                    <td style="font-size:.82rem;color:#64748b;">{{ a.email }}</td>
                     <td>
                         {% if a.role   ==   'superadmin'%}
                         <span class="status-badge bg-warning bg-opacity-10 text-warning"><i
@@ -45,7 +45,7 @@
                         <span class="status-badge bg-secondary bg-opacity-20 text-secondary">Inactive</span>
                         {% endif %}
                     </td>
-                    <td style="font-size:.75rem;color:#8899b4;">
+                    <td style="font-size:.75rem;color:#64748b;">
                         {% if a.last_login%}{{ a.last_login|date:"M d, Y H:i" }}{% else %}Never{% endif %}
                     </td>
                     <td>
@@ -67,7 +67,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="7" class="text-center py-5" style="color:#8899b4;">No admin accounts found.</td>
+                    <td colspan="7" class="text-center py-5" style="color:#64748b;">No admin accounts found.</td>
                 </tr>
                 {% endfor %}
             </tbody>

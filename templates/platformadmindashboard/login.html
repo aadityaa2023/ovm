@@ -1,215 +1,202 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login — OVM Platform</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Admin Identity Access — OVM Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --accent: #6366f1;
+            --primary-red: #ff5252;
+            --accent-glow: rgba(255,82,82,0.3);
+            --text-main: #ecf0f1;
+            --bg-body: #05080a;
+            --card-bg: rgba(15,20,25,0.75);
+            --border-red: rgba(255,82,82,0.2);
+            --input-bg: rgba(0,0,0,0.3);
+            --glass: blur(15px);
         }
+
+        * { box-sizing: border-box; font-family: 'Outfit', sans-serif; transition: all 0.3s ease; }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: #0f1117;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
+            margin: 0; background: var(--bg-body); color: var(--text-main);
+            min-height: 100vh; overflow: hidden;
+            background-image: radial-gradient(circle at 50% 50%, rgba(255,82,82,.06) 0%, transparent 50%),
+                              url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&w=2000&q=80');
+            background-blend-mode: overlay; background-size: cover;
         }
 
-        body::before {
-            content: '';
-            position: absolute;
-            width: 600px;
-            height: 600px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(99, 102, 241, .18) 0%, transparent 70%);
-            top: -150px;
-            left: -100px;
-            pointer-events: none;
+        .page-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 1; }
+
+        header {
+            position: fixed; top: 0; left: 0; width: 100%;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px 60px; z-index: 30;
+            background: rgba(0,0,0,0.3); backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-red);
         }
 
-        body::after {
-            content: '';
-            position: absolute;
-            width: 400px;
-            height: 400px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(139, 92, 246, .12) 0%, transparent 70%);
-            bottom: -50px;
-            right: -50px;
-            pointer-events: none;
+        .emblem-wrap { display: flex; align-items: center; gap: 20px; }
+        .emblem-circle {
+            width: 56px; height: 56px; border-radius: 50%;
+            border: 2px solid var(--primary-red);
+            background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Emblem_of_India.svg/800px-Emblem_of_India.svg.png') no-repeat center/contain;
+            background-color: #fff;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+        .brand-text h3 { margin:0; font-size:22px; font-weight:800; letter-spacing:1px; }
+        .brand-text p { margin:0; font-size:9px; color:var(--primary-red); font-weight:800; letter-spacing:2px; }
+
+        .wrapper {
+            display: flex; min-height: 100vh; align-items: center; justify-content: center;
+            padding: 100px 8% 40px; gap: 80px; position: relative; z-index: 10;
         }
 
-        .login-wrapper {
-            width: 100%;
-            max-width: 440px;
-            position: relative;
-            z-index: 1;
-            padding: 16px;
+        /* ── Left Info Panel ── */
+        .content-left { flex: 1.3; }
+        .info-card {
+            background: var(--card-bg); padding: 40px; border-radius: 30px;
+            border: 1px solid var(--border-red);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4); backdrop-filter: var(--glass);
+        }
+        .info-card h1 { font-size: 40px; color: var(--primary-red); margin: 0 0 16px; font-weight: 800; }
+        .info-card p { font-size: 16px; line-height: 1.7; opacity: 0.85; margin: 0; }
+        .feature-pills { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px; }
+        .feature-pill {
+            background: var(--card-bg); padding: 10px 20px; border-radius: 15px;
+            border: 1px solid var(--border-red); font-size: 13px; font-weight: 600;
+            display: flex; align-items: center; gap: 8px; backdrop-filter: var(--glass);
+        }
+        .feature-pill i { color: var(--primary-red); }
+
+        /* ── Auth Card ── */
+        .auth-card {
+            width: 400px; padding: 48px 40px;
+            background: var(--card-bg); border-radius: 36px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5); text-align: center;
+            border: 1px solid var(--border-red); backdrop-filter: var(--glass);
         }
 
-        .login-card {
-            background: #161b27;
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            border-radius: 20px;
-            padding: 40px;
+        .card-logo {
+            width: 90px; height: 90px; background: #fff; border-radius: 26px;
+            margin: -90px auto 28px; border: 2px solid var(--primary-red);
+            padding: 12px; box-shadow: 0 12px 28px var(--accent-glow);
+            transform: rotate(-4deg);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .card-logo img { width: 100%; height: 100%; object-fit: contain; }
+
+        .auth-card h2 { font-size: 26px; font-weight: 800; margin-bottom: 4px; }
+        .sub-head { font-size: 11px; color: var(--primary-red); text-transform: uppercase; font-weight: 700; letter-spacing: 2px; margin-bottom: 28px; }
+
+        .ovm-input-wrap {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--input-bg); border: 1px solid var(--border-red);
+            padding: 14px 18px; border-radius: 15px; margin-bottom: 16px;
+            text-align: left;
+        }
+        .ovm-input-wrap:focus-within { border-color: var(--primary-red); box-shadow: 0 0 10px var(--accent-glow); }
+        .ovm-input-wrap i { color: var(--primary-red); width: 18px; flex-shrink: 0; }
+        .ovm-input-wrap input {
+            flex: 1; background: none; border: none; outline: none;
+            color: var(--text-main); font-size: 15px; font-family: inherit;
+        }
+        .ovm-input-wrap input::placeholder { color: rgba(255,255,255,0.3); }
+
+        .error-box {
+            background: rgba(255,82,82,0.12); border: 1px solid rgba(255,82,82,0.3);
+            border-radius: 12px; padding: 12px 16px; margin-bottom: 20px;
+            font-size: 14px; color: #ff8080; display: flex; align-items: center; gap: 8px; text-align:left;
         }
 
-        .brand-mark {
-            width: 52px;
-            height: 52px;
-            border-radius: 14px;
-            background: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-            color: white;
-            margin: 0 auto 20px;
+        .btn-auth {
+            width: 100%; padding: 15px; background: var(--primary-red);
+            border: none; border-radius: 18px; color: #fff; font-weight: 700;
+            font-size: 16px; cursor: pointer; margin-top: 8px;
+            box-shadow: 0 10px 20px var(--accent-glow);
         }
+        .btn-auth:hover { transform: scale(1.02); filter: saturate(1.3); }
 
-        h2 {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #e2e8f0;
-        }
+        .back-link { margin-top: 24px; font-size: 13px; color: rgba(255,255,255,0.5); }
+        .back-link a { color: var(--primary-red); text-decoration: none; font-weight: 600; }
+        .back-link a:hover { text-decoration: underline; }
 
-        .subtitle {
-            font-size: .83rem;
-            color: #8899b4;
-        }
-
-        .form-control {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.09);
-            color: #e2e8f0;
-            border-radius: 10px;
-            padding: 12px 16px;
-            font-size: .9rem;
-        }
-
-        .form-control:focus {
-            background: rgba(255, 255, 255, 0.07);
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, .2);
-            color: #e2e8f0;
-        }
-
-        .form-control::placeholder {
-            color: #8899b4;
-        }
-
-        .form-label {
-            font-size: .8rem;
-            color: #8899b4;
-            font-weight: 500;
-        }
-
-        .input-group-text {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.09);
-            color: #8899b4;
-            border-radius: 10px 0 0 10px;
-        }
-
-        .input-group .form-control {
-            border-radius: 0 10px 10px 0;
-        }
-
-        .btn-login {
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 13px;
-            font-size: .9rem;
-            font-weight: 600;
-            width: 100%;
-            transition: background .2s, transform .1s;
-        }
-
-        .btn-login:hover {
-            background: #4f52e0;
-            color: white;
-            transform: translateY(-1px);
-        }
-
-        .btn-login:active {
-            transform: translateY(0);
-        }
-
-        .alert-danger-custom {
-            background: rgba(220, 53, 69, .1);
-            border: 1px solid rgba(220, 53, 69, .3);
-            border-radius: 10px;
-            color: #f87171;
-            font-size: .83rem;
-            padding: 10px 14px;
-        }
-
-        .divider {
-            border-top: 1px solid rgba(255, 255, 255, 0.07);
-        }
+        @media(max-width:768px){.content-left{display:none;}.wrapper{padding:100px 20px 40px;}.auth-card{width:100%;max-width:400px;}}
     </style>
 </head>
-
 <body>
-    <div class="login-wrapper">
-        <div class="login-card">
-            <div class="text-center mb-4">
-                <div class="brand-mark"><i class="fas fa-shield-alt"></i></div>
-                <h2>Platform Admin</h2>
-                <p class="subtitle">Online Voting Management System</p>
-            </div>
 
-            {% if error%}
-            <div class="alert-danger-custom mb-4">
-                <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
-            </div>
-            {% endif %}
+<div class="page-overlay"></div>
 
-            <form method="post">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label class="form-label">Username</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-user"></i></span>
-                        <input type="text" name="username" id="adminUsername" class="form-control"
-                            placeholder="Enter admin username" value="{{ form.username.value|default:'' }}" required
-                            autocomplete="username">
-                    </div>
-                </div>
-                <div class="mb-4">
-                    <label class="form-label">Password</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                        <input type="password" name="password" id="adminPassword" class="form-control"
-                            placeholder="Enter password" required autocomplete="current-password">
-                    </div>
-                </div>
-                <button type="submit" class="btn-login">
-                    <i class="fas fa-sign-in-alt me-2"></i>Sign In to Admin Panel
-                </button>
-            </form>
-
-            <div class="divider mt-4 mb-3"></div>
-            <p class="text-center mb-0" style="font-size:.75rem;color:#8899b4;">
-                <a href="/" style="color:#6366f1;text-decoration:none;">
-                    <i class="fas fa-arrow-left me-1"></i>Back to Voter Portal
-                </a>
-            </p>
+<header>
+    <div class="emblem-wrap">
+        <div class="emblem-circle"></div>
+        <div class="brand-text">
+            <h3>OVM</h3>
+            <p>BLOCKCHAIN PROTOCOL</p>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-</body>
+    <div style="font-size:12px; color:rgba(255,255,255,0.4);">
+        <i class="fas fa-shield-alt me-1" style="color:var(--primary-red)"></i>
+        ADMIN SECURE TERMINAL
+    </div>
+</header>
 
+<div class="wrapper">
+
+    <!-- Left Info Panel -->
+    <div class="content-left">
+        <div class="info-card">
+            <h1>Admin Identity Access</h1>
+            <p>Restricted control panel for authorised administrators only. All actions are logged, encrypted and stored on the immutable blockchain audit trail.</p>
+        </div>
+        <div class="feature-pills">
+            <div class="feature-pill"><i class="fas fa-shield-halved"></i> Fraud-Proof Audit</div>
+            <div class="feature-pill"><i class="fas fa-bolt-lightning"></i> Real-time Sync</div>
+            <div class="feature-pill"><i class="fas fa-network-wired"></i> Decentralized</div>
+            <div class="feature-pill"><i class="fas fa-lock"></i> 256-bit AES</div>
+        </div>
+    </div>
+
+    <!-- Auth Card -->
+    <div class="auth-card">
+        <div class="card-logo">
+            <img src="https://cdn-icons-png.flaticon.com/512/927/927250.png" alt="OVM Admin">
+        </div>
+        <h2>Admin Login</h2>
+        <div class="sub-head">256-Bit AES Secure</div>
+
+        {% if error %}
+        <div class="error-box">
+            <i class="fas fa-exclamation-circle"></i>{{ error }}
+        </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="ovm-input-wrap">
+                <i class="fas fa-user"></i>
+                <input type="text" name="username" placeholder="Admin Username"
+                    value="{{ form.username.value|default:'' }}" required autocomplete="username">
+            </div>
+            <div class="ovm-input-wrap">
+                <i class="fas fa-lock"></i>
+                <input type="password" name="password" placeholder="Password"
+                    required autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn-auth">
+                <i class="fas fa-sign-in-alt me-2"></i>Sign In
+            </button>
+        </form>
+
+        <div class="back-link">
+            <a href="/"><i class="fas fa-arrow-left me-1"></i>Back to Voter Portal</a>
+        </div>
+    </div>
+
+</div>
+
+</body>
 </html>

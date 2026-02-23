@@ -7,7 +7,7 @@
 <div class="d-flex align-items-center justify-content-between mb-4">
     <div>
         <h4 class="mb-0">Elections</h4>
-        <small style="color:#8899b4;">{{ total }} total elections</small>
+        <small style="color:#64748b;">{{ total }} total elections</small>
     </div>
     <a href="{% url 'platformadmin:election_create' %}" class="btn btn-accent">
         <i class="fas fa-plus me-2"></i>New Election
@@ -48,7 +48,7 @@
                 {% for e in elections %}
                 <tr>
                     <td><span style="font-weight:500;">{{ e.title }}</span></td>
-                    <td><span style="font-size:.78rem;color:#8899b4;">{{ e.get_election_type_display }}</span></td>
+                    <td><span style="font-size:.78rem;color:#64748b;">{{ e.get_election_type_display }}</span></td>
                     <td>
                         {% if e.status   ==   'live'%}
                         <span class="status-badge bg-success bg-opacity-10 text-success">
@@ -62,8 +62,8 @@
                         <span class="status-badge bg-danger bg-opacity-10 text-danger">Cancelled</span>
                         {% endif %}
                     </td>
-                    <td style="font-size:.78rem;color:#8899b4;">{{ e.start_date|date:"M d, Y" }}</td>
-                    <td style="font-size:.78rem;color:#8899b4;">{{ e.end_date|date:"M d, Y" }}</td>
+                    <td style="font-size:.78rem;color:#64748b;">{{ e.start_date|date:"M d, Y" }}</td>
+                    <td style="font-size:.78rem;color:#64748b;">{{ e.end_date|date:"M d, Y" }}</td>
                     <td><span style="font-size:.82rem;">{{ e.vote_count }}</span></td>
                     <td><span style="font-size:.82rem;">{{ e.candidate_count }}</span></td>
                     <td>
@@ -83,7 +83,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="8" class="text-center py-5" style="color:#8899b4;">No elections found.</td>
+                    <td colspan="8" class="text-center py-5" style="color:#64748b;">No elections found.</td>
                 </tr>
                 {% endfor %}
             </tbody>

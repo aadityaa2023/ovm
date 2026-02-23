@@ -7,7 +7,7 @@
 <div class="d-flex align-items-center justify-content-between mb-4">
     <div>
         <h4 class="mb-0">Vote Log</h4>
-        <small style="color:#8899b4;">{{ total }} total votes — read only</small>
+        <small style="color:#64748b;">{{ total }} total votes — read only</small>
     </div>
 </div>
 
@@ -46,16 +46,16 @@
                     <td style="font-size:.82rem;">{{ v.election.title|truncatechars:30 }}</td>
                     <td style="font-size:.82rem;">{{ v.candidate.name }}</td>
                     <td>
-                        <span style="font-family:monospace;font-size:.72rem;color:#8899b4;"
+                        <span style="font-family:monospace;font-size:.72rem;color:#64748b;"
                             title="{{ v.blockchain_hash }}">
                             {{ v.blockchain_hash|truncatechars:22 }}
                         </span>
                     </td>
-                    <td style="font-size:.75rem;color:#8899b4;">{{ v.cast_at|date:"M d, Y H:i" }}</td>
+                    <td style="font-size:.75rem;color:#64748b;">{{ v.cast_at|date:"M d, Y H:i" }}</td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" class="text-center py-5" style="color:#8899b4;">No votes recorded yet.</td>
+                    <td colspan="5" class="text-center py-5" style="color:#64748b;">No votes recorded yet.</td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -9,13 +9,13 @@
 <div class="row g-3 mb-4">
     <div class="col-6 col-xl-3">
         <div class="stat-card">
-            <div class="stat-icon" style="background:rgba(99,102,241,.15);color:#6366f1;">
+            <div class="stat-icon" style="background:rgba(14,165,233,.12);color:#0ea5e9;">
                 <i class="fas fa-users"></i>
             </div>
             <div class="stat-value">{{ stats.total_voters }}</div>
             <div class="stat-label">Total Voters</div>
-            <div class="mt-2" style="font-size:.72rem;color:#8899b4;">
-                <span style="color:#22c55e;">{{ stats.verified_voters }}</span> verified
+            <div class="mt-2" style="font-size:.72rem;color:#64748b;">
+                <span style="color:#0ea5e9;">{{ stats.verified_voters }}</span> verified
             </div>
         </div>
     </div>
@@ -26,7 +26,7 @@
             </div>
             <div class="stat-value">{{ stats.total_elections }}</div>
             <div class="stat-label">Elections</div>
-            <div class="mt-2" style="font-size:.72rem;color:#8899b4;">
+            <div class="mt-2" style="font-size:.72rem;color:#64748b;">
                 <span style="color:#ef4444;">{{ stats.live_elections }}</span> live now
             </div>
         </div>
@@ -55,14 +55,14 @@
 <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
         <div class="stat-card" style="padding:16px;">
-            <div style="font-size:.72rem;color:#8899b4;">States</div>
-            <div style="font-size:1.3rem;font-weight:700;">{{ stats.total_states }}</div>
+            <div style="font-size:.72rem;color:#64748b;">States</div>
+            <div style="font-size:1.3rem;font-weight:700;color:#1e293b;">{{ stats.total_states }}</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
         <div class="stat-card" style="padding:16px;">
-            <div style="font-size:.72rem;color:#8899b4;">Constituencies</div>
-            <div style="font-size:1.3rem;font-weight:700;">{{ stats.total_constituencies }}</div>
+            <div style="font-size:.72rem;color:#64748b;">Constituencies</div>
+            <div style="font-size:1.3rem;font-weight:700;color:#1e293b;">{{ stats.total_constituencies }}</div>
         </div>
     </div>
 </div>
@@ -74,7 +74,7 @@
         <div class="card">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <span><i class="fas fa-vote-yea me-2 text-warning"></i>Recent Votes</span>
-                <a href="{% url 'platformadmin:vote_list' %}" style="font-size:.78rem;color:#6366f1;">View all</a>
+                <a href="{% url 'platformadmin:vote_list' %}" style="font-size:.78rem;color:#0ea5e9;">View all</a>
             </div>
             <div class="card-body p-0">
                 {% if recent_votes%}
@@ -95,7 +95,7 @@
                                 <td><span style="font-size:.8rem;">{{ vote.election.title|truncatechars:25 }}</span>
                                 </td>
                                 <td><span style="font-size:.8rem;">{{ vote.candidate.name }}</span></td>
-                                <td><span style="font-size:.75rem;color:#8899b4;">{{ vote.cast_at|date:"M d, H:i"
+                                <td><span style="font-size:.75rem;color:#64748b;">{{ vote.cast_at|date:"M d, H:i"
                                         }}</span></td>
                             </tr>
                             {% endfor %}
@@ -103,7 +103,7 @@
                     </table>
                 </div>
                 {% else %}
-                <div class="text-center py-5" style="color:#8899b4;">
+                <div class="text-center py-5" style="color:#64748b;">
                     <i class="fas fa-inbox fa-2x mb-2"></i>
                     <p class="mb-0 small">No votes recorded yet</p>
                 </div>
@@ -117,20 +117,20 @@
         <div class="card mb-4">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <span><i class="fas fa-user-plus me-2 text-primary"></i>New Voters</span>
-                <a href="{% url 'platformadmin:voter_list' %}" style="font-size:.78rem;color:#6366f1;">View all</a>
+                <a href="{% url 'platformadmin:voter_list' %}" style="font-size:.78rem;color:#0ea5e9;">View all</a>
             </div>
             <div class="card-body p-0">
                 {% for voter in recent_voters %}
-                <div class="d-flex align-items-center gap-3 p-3" style="border-bottom:1px solid rgba(255,255,255,0.05)">
+                <div class="d-flex align-items-center gap-3 p-3" style="border-bottom:1px solid #e2e8f0">
                     <div
-                        style="width:34px;height:34px;border-radius:50%;background:rgba(99,102,241,.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#6366f1;">
+                        style="width:34px;height:34px;border-radius:50%;background:rgba(14,165,233,.12);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#0ea5e9;">
                         {{ voter.name|first|upper }}
                     </div>
                     <div style="flex:1;min-width:0">
                         <div
                             style="font-size:.82rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                             {{ voter.name }}</div>
-                        <div style="font-size:.72rem;color:#8899b4;">{{ voter.aadhaar_number }}</div>
+                        <div style="font-size:.72rem;color:#64748b;">{{ voter.aadhaar_number }}</div>
                     </div>
                     <span
                         class="status-badge {% if voter.is_verified%}bg-success bg-opacity-10 text-success{% else %}bg-warning bg-opacity-10 text-warning{% endif %}">
@@ -138,7 +138,7 @@
                     </span>
                 </div>
                 {% empty %}
-                <div class="text-center py-4 small" style="color:#8899b4;">No voters yet</div>
+                <div class="text-center py-4 small" style="color:#64748b;">No voters yet</div>
                 {% endfor %}
             </div>
         </div>
@@ -146,14 +146,14 @@
         <div class="card">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <span><i class="fas fa-poll me-2 text-success"></i>Elections</span>
-                <a href="{% url 'platformadmin:election_list' %}" style="font-size:.78rem;color:#6366f1;">View all</a>
+                <a href="{% url 'platformadmin:election_list' %}" style="font-size:.78rem;color:#0ea5e9;">View all</a>
             </div>
             <div class="card-body p-0">
                 {% for election in elections %}
-                <div class="d-flex align-items-center gap-3 p-3" style="border-bottom:1px solid rgba(255,255,255,0.05)">
+                <div class="d-flex align-items-center gap-3 p-3" style="border-bottom:1px solid #e2e8f0">
                     <div style="flex:1;min-width:0">
                         <div style="font-size:.82rem;font-weight:500;">{{ election.title|truncatechars:30 }}</div>
-                        <div style="font-size:.72rem;color:#8899b4;">{{ election.start_date|date:"M d, Y" }}</div>
+                        <div style="font-size:.72rem;color:#64748b;">{{ election.start_date|date:"M d, Y" }}</div>
                     </div>
                     {% if election.status   ==   'live'%}
                     <span class="status-badge bg-success bg-opacity-10 text-success">Live</span>
@@ -166,7 +166,7 @@
                     {% endif %}
                 </div>
                 {% empty %}
-                <div class="text-center py-4 small" style="color:#8899b4;">No elections yet</div>
+                <div class="text-center py-4 small" style="color:#64748b;">No elections yet</div>
                 {% endfor %}
             </div>
         </div>
