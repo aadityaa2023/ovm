@@ -197,21 +197,4 @@ class VoterVerification(models.Model):
         return f"{self.verification_type} - {status} ({self.attempted_at})"
 
 
-class Admin(models.Model):
-    """Admin Users for Election Management"""
-    username = models.CharField(max_length=100, unique=True)
-    password_hash = models.CharField(max_length=256)
-    full_name = models.CharField(max_length=200)
-    email = models.EmailField(unique=True)
-    
-    role = models.CharField(max_length=50, default='admin')
-    status = models.CharField(max_length=20, default='Active')
-    
-    created_at = models.DateTimeField(auto_now_add=True)
-    last_login = models.DateTimeField(null=True, blank=True)
-    
-    class Meta:
-        ordering = ['username']
-    
-    def __str__(self):
-        return self.username
+
