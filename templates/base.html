@@ -62,11 +62,9 @@
             display: flex; align-items: center; gap: 10px;
             text-decoration: none; color: var(--text-color); font-weight: 800; font-size: 18px; letter-spacing: 1px;
         }
-        .ovm-navbar .brand .icon-wrap {
-            width: 36px; height: 36px; border-radius: 10px;
-            background: linear-gradient(135deg, var(--accent), #818cf8);
-            display: flex; align-items: center; justify-content: center;
-            color: #fff; font-size: 16px;
+        .ovm-navbar .logo-img {
+            width: 40px; height: 40px; border-radius: 8px;
+            object-fit: contain;
         }
         .ovm-navbar .nav-links { display: flex; align-items: center; gap: 8px; }
         .ovm-navbar .nav-links a, .ovm-navbar .nav-links button {
@@ -82,11 +80,6 @@
             border: 1px solid rgba(239,68,68,0.25);
         }
         .ovm-navbar .nav-links .btn-logout:hover { background: var(--danger); color: #fff; }
-        .ovm-navbar .nav-links .btn-admin {
-            background: rgba(99,102,241,0.1); color: var(--accent);
-            border: 1px solid var(--border-color);
-        }
-        .ovm-navbar .nav-links .btn-admin:hover { background: var(--accent); color: #fff; }
         .ovm-navbar .theme-toggle {
             width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border-color);
             background: var(--card-gradient); color: var(--accent); cursor: pointer;
@@ -123,8 +116,7 @@
     <!-- Navigation Bar -->
     <nav class="ovm-navbar">
         <a class="brand" href="{% url 'index' %}">
-            <div class="icon-wrap"><i class="fas fa-vote-yea"></i></div>
-            OVM
+            <img src="{% static 'logo.png' %}" alt="OVM Logo" class="logo-img">
         </a>
         <div class="nav-links">
             {% if request.session.voter_id %}
@@ -140,9 +132,6 @@
             {% else %}
                 <a href="{% url 'index' %}"><i class="fas fa-home me-1"></i>Home</a>
             {% endif %}
-            <a href="/platformadmin/" class="btn-admin">
-                <i class="fas fa-user-shield me-1"></i>Admin
-            </a>
             <button class="theme-toggle" onclick="toggleOVMTheme()" title="Toggle theme">
                 <i class="fas fa-moon" id="ovm-theme-icon"></i>
             </button>
